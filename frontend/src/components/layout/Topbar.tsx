@@ -23,7 +23,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   const handleDownloadReport = async () => {
     try {
       setDownloading(true);
-      await api.downloadPdfReport();
+      await api.downloadPdfReport('2018-03-01', '2018-08-31', 'delivered');
     } catch (err) {
       alert('Report download error: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
@@ -33,19 +33,22 @@ export const Topbar: React.FC<TopbarProps> = ({
 
   return (
     <header className="px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
-      {/* Left: Greeting & Date Range */}
+      {/* Left: Greeting & Reconciled Date Range */}
       <div>
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold tracking-tight text-bento-text dark:text-bento-darkText">
             E-Commerce Performance
           </h2>
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-brand-emerald">
-            <CheckCircle2 className="w-3 h-3" /> 99,441 Orders
+          <span 
+            className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-brand-emerald"
+            title="Delivered orders benchmark (96,478) reconciled against all lifetime orders (99,441)"
+          >
+            <CheckCircle2 className="w-3 h-3" /> Delivered: 96,478 <span className="opacity-70 font-normal">(all: 99,441)</span>
           </span>
         </div>
         <p className="text-xs text-bento-muted mt-0.5 flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5" />
-          <span>Audit Period: <b>2016-09-15</b> to <b>2018-08-29</b></span>
+          <span>Active Window: <b>2018-03-01</b> to <b>2018-08-31</b> <span className="opacity-75">(Last 6 complete months)</span></span>
         </p>
       </div>
 

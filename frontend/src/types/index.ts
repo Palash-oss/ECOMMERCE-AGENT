@@ -2,17 +2,37 @@ export interface KpiMetric {
   title: string;
   value: number;
   formatted: string;
-  previous_value: number;
+  compact?: string;
+  item_revenue?: number;
+  freight_value?: number;
+  previous_value: number | null;
   delta: {
     percentage: number;
-    direction: 'positive' | 'negative';
-  };
+    direction: 'positive' | 'negative' | 'neutral';
+    has_data?: boolean;
+  } | null;
   sparkline: number[];
   is_hero: boolean;
   note?: string;
+  repeat_buyers?: number;
+  repeat_buyer_rate?: number;
+  all_statuses_total?: number;
+  reconciliation_subtitle?: string;
+  aov?: number;
+  aov_formatted?: string;
+  avg_item_price?: number;
 }
 
 export interface OverviewKpis {
+  reporting_window?: {
+    start_date: string;
+    end_date: string;
+    status_filter: string;
+    has_valid_prior: boolean;
+    prior_start: string | null;
+    prior_end: string | null;
+    all_orders_count: number;
+  };
   gmv: KpiMetric;
   orders: KpiMetric;
   customers: KpiMetric;

@@ -44,7 +44,9 @@ export const CustomerHabitsChart: React.FC<CustomerHabitsChartProps> = ({ data }
           <h3 className="font-bold text-base text-bento-text dark:text-bento-darkText">
             Sales & Logistics Velocity
           </h3>
-          <p className="text-xs text-bento-muted mt-0.5">Monthly merchandise revenue vs freight overhead</p>
+          <p className="text-xs text-bento-muted mt-0.5" title="Partial months (Sep/Oct 2016, Sep/Oct 2018) excluded to prevent artificial velocity dips.">
+            Monthly merchandise revenue vs freight overhead <span className="opacity-75 cursor-help underline decoration-dotted text-[11px]">(complete months only)</span>
+          </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300">

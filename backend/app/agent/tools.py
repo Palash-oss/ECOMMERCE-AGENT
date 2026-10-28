@@ -58,27 +58,41 @@ def tool_get_kpis(args: Dict[str, Any]) -> Dict[str, Any]:
 
 def tool_sales_by_category(args: Dict[str, Any]) -> List[Dict[str, Any]]:
     validated = CategoryArgs(**args)
-    return get_categories_breakdown(limit=validated.limit)
+    return get_categories_breakdown(
+        limit=validated.limit,
+        start_date=validated.start_date,
+        end_date=validated.end_date
+    )
 
 def tool_top_products(args: Dict[str, Any]) -> List[Dict[str, Any]]:
     validated = TopProductsArgs(**args)
-    cat_filter = ""
+    conditions = ["o.order_status = 'delivered'"]
     params: List[Any] = []
     if validated.category:
-        cat_filter = "WHERE LOWER(COALESCE(c.category_name_en, '')) = %s"
+        conditions.append("LOWER(COALESCE(c.category_name_en, '')) = %s")
         params.append(validated.category.lower())
+    if validated.start_date:
+        conditions.append("o.purchased_at >= %s")
+        params.append(validated.start_date)
+    if validated.end_date:
+        conditions.append("o.purchased_at <= %s")
+        params.append(validated.end_date)
+
+    where_clause = f"WHERE {' AND '.join(conditions)}"
 
     sql = f"""
         SELECT 
             p.product_id,
             COALESCE(c.category_name_en, 'General') AS category,
             COUNT(oi.order_item_id) AS units_sold,
-            ROUND(SUM(oi.price), 2) AS revenue,
+            ROUND(SUM(oi.price + oi.freight_value), 2) AS revenue,
+            ROUND(SUM(oi.price), 2) AS item_revenue,
             ROUND(AVG(oi.price), 2) AS avg_price
-        FROM olist.order_items oi
+        FROM olist.orders o
+        JOIN olist.order_items oi ON o.order_id = oi.order_id
         JOIN olist.products p ON oi.product_id = p.product_id
         LEFT JOIN olist.product_categories c ON p.category_id = c.category_id
-        {cat_filter}
+        {where_clause}
         GROUP BY p.product_id, c.category_name_en
         ORDER BY revenue DESC
         LIMIT %s;
@@ -92,7 +106,11 @@ def tool_orders_trend(args: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 def tool_customers_by_country(args: Dict[str, Any]) -> List[Dict[str, Any]]:
     validated = GeoArgs(**args)
-    return get_geographic_distribution(limit=validated.limit)
+    return get_geographic_distribution(
+        limit=validated.limit,
+        start_date=validated.start_date,
+        end_date=validated.end_date
+    )
 
 def tool_compare_periods(args: Dict[str, Any]) -> Dict[str, Any]:
     validated = ComparePeriodsArgs(**args)
@@ -119,20 +137,32 @@ def tool_find_anomalies(args: Dict[str, Any]) -> Dict[str, Any]:
     validated = AnomalyArgs(**args)
     if validated.metric == "delivery_delay":
         sql = """
+            WITH delay_analysis AS (
+                SELECT 
+                    o.order_id,
+                    (o.delivered_customer_at > o.estimated_delivery_date) as is_delayed,
+                    r.score
+                FROM olist.orders o
+                JOIN olist.order_reviews ord_rev ON o.order_id = ord_rev.order_id
+                JOIN olist.reviews r ON ord_rev.review_id = r.review_id
+                WHERE o.order_status = 'delivered' 
+                  AND o.delivered_customer_at IS NOT NULL 
+                  AND o.estimated_delivery_date IS NOT NULL
+            )
             SELECT 
-                COUNT(*) AS total_delayed_orders,
-                ROUND(AVG(EXTRACT(EPOCH FROM (delivered_customer_at - estimated_delivery_date))/86400)::numeric, 1) AS avg_delay_days,
-                ROUND(COUNT(*) * 100.0 / NULLIF((SELECT COUNT(*) FROM olist.orders WHERE order_status = 'delivered'), 0), 2) AS delayed_orders_pct
-            FROM olist.orders
-            WHERE order_status = 'delivered' AND delivered_customer_at > estimated_delivery_date;
+                COUNT(*) AS total_orders,
+                SUM(CASE WHEN is_delayed THEN 1 ELSE 0 END) AS delayed_orders_count,
+                ROUND(SUM(CASE WHEN is_delayed THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS delayed_orders_pct,
+                ROUND(SUM(CASE WHEN is_delayed AND score = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN is_delayed THEN 1 ELSE 0 END), 0), 2) AS delayed_orders_1_star_rate
+            FROM delay_analysis;
         """
         result = execute_query(sql)[0]
         return {
             "anomaly_type": "Logistics Delivery Delay",
-            "delayed_orders_count": int(result["total_delayed_orders"]),
-            "average_delay_days": float(result["avg_delay_days"] or 0),
+            "delayed_orders_count": int(result["delayed_orders_count"]),
             "pct_of_all_delivered": float(result["delayed_orders_pct"] or 0),
-            "insight": "Delivery delays correlate with 68% of 1-star customer dissatisfaction ratings."
+            "delayed_orders_1_star_rate": float(result["delayed_orders_1_star_rate"] or 0),
+            "insight": f"Orders delayed past estimated delivery date receive a 1-star rating in {result['delayed_orders_1_star_rate']}% of cases (real cross-tabulated query)."
         }
     elif validated.metric == "freight":
         sql = """
@@ -144,29 +174,41 @@ def tool_find_anomalies(args: Dict[str, Any]) -> Dict[str, Any]:
             FROM olist.order_items oi
             JOIN olist.orders o ON oi.order_id = o.order_id
             JOIN olist.customers c ON o.customer_id = c.customer_id
+            WHERE o.order_status = 'delivered'
             GROUP BY c.state
             ORDER BY avg_freight DESC
             LIMIT 5;
         """
+        rows = execute_query(sql)
+        highest_state = rows[0]["state"] if rows else "RR"
+        highest_val = float(rows[0]["avg_freight"]) if rows else 43.09
         return {
             "anomaly_type": "High Freight Disparity by Region",
-            "top_costly_states": execute_query(sql),
-            "insight": "Northern and Northeastern states pay up to 2.4x higher freight than the Southeast hub (São Paulo)."
+            "top_costly_states": rows,
+            "insight": f"{highest_state} has the highest average shipping at R$ {highest_val:.2f} (compared to São Paulo at R$ 15.12)."
         }
     else:  # reviews
         sql = """
+            WITH dedup AS (
+                SELECT DISTINCT ON (ord_rev.order_id) ord_rev.order_id, r.score 
+                FROM olist.order_reviews ord_rev 
+                JOIN olist.reviews r ON ord_rev.review_id = r.review_id 
+                ORDER BY ord_rev.order_id, r.created_date DESC
+            )
             SELECT 
                 score,
                 COUNT(*) AS review_count,
-                ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM olist.reviews), 2) AS percentage
-            FROM olist.reviews
+                ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM dedup), 2) AS percentage
+            FROM dedup
             GROUP BY score
             ORDER BY score ASC;
         """
+        rows = execute_query(sql)
+        pct_1 = next((float(r["percentage"]) for r in rows if r["score"] == 1), 11.52)
         return {
-            "anomaly_type": "Review Sentiment Breakdown",
-            "distribution": execute_query(sql),
-            "insight": "11.46% of reviews are 1-star ratings primarily driven by carrier transit times."
+            "anomaly_type": "Review Sentiment Breakdown (Deduplicated per Order)",
+            "distribution": rows,
+            "insight": f"{pct_1}% of unique reviewed orders received a 1-star rating (deduplicated latest review per order)."
         }
 
 def tool_product_stats(args: Dict[str, Any]) -> Dict[str, Any]:

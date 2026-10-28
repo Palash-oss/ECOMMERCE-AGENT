@@ -19,32 +19,52 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export const api = {
   // Overview
-  async getKpis(startDate?: string, endDate?: string): Promise<OverviewKpis> {
+  async getKpis(startDate?: string, endDate?: string, status: string = 'delivered'): Promise<OverviewKpis> {
     const params = new URLSearchParams();
     if (startDate) params.append('start_date', startDate);
     if (endDate) params.append('end_date', endDate);
-    const res = await fetch(`${BASE_URL}/overview/kpis?${params.toString()}`);
+    if (status) params.append('status', status);
+    const res = await fetch(`${BASE_URL}/overview/kpis?${params.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse<OverviewKpis>(res);
   },
 
-  async getTimeseries(granularity = 'month'): Promise<TimeseriesPoint[]> {
-    const res = await fetch(`${BASE_URL}/overview/timeseries?granularity=${granularity}`);
+  async getTimeseries(granularity = 'month', startDate?: string, endDate?: string, status: string = 'delivered'): Promise<TimeseriesPoint[]> {
+    const params = new URLSearchParams({ granularity, status });
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    const res = await fetch(`${BASE_URL}/overview/timeseries?${params.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse<TimeseriesPoint[]>(res);
   },
 
-  async getCategories(limit = 10): Promise<CategoryBreakdown[]> {
-    const res = await fetch(`${BASE_URL}/overview/categories?limit=${limit}`);
+  async getCategories(limit = 10, startDate?: string, endDate?: string, status: string = 'delivered'): Promise<CategoryBreakdown[]> {
+    const params = new URLSearchParams({ limit: limit.toString(), status });
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    const res = await fetch(`${BASE_URL}/overview/categories?${params.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse<CategoryBreakdown[]>(res);
   },
 
-  async getGeo(limit = 10): Promise<GeoRegion[]> {
-    const res = await fetch(`${BASE_URL}/overview/geo?limit=${limit}`);
+  async getGeo(limit = 10, startDate?: string, endDate?: string, status: string = 'delivered'): Promise<GeoRegion[]> {
+    const params = new URLSearchParams({ limit: limit.toString(), status });
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    const res = await fetch(`${BASE_URL}/overview/geo?${params.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse<GeoRegion[]>(res);
   },
 
   // Products
   async searchSuggestions(q: string): Promise<Array<{ product_id: string; title: string; category: string; price: number; total_sales: number; photos_qty: number }>> {
-    const res = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(q)}`);
+    const res = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(q)}`, {
+      credentials: 'include'
+    });
     return handleResponse(res);
   },
 
@@ -66,12 +86,16 @@ export const api = {
     if (params.page) q.append('page', params.page.toString());
     if (params.page_size) q.append('page_size', params.page_size.toString());
 
-    const res = await fetch(`${BASE_URL}/products?${q.toString()}`);
+    const res = await fetch(`${BASE_URL}/products?${q.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse(res);
   },
 
   async getProductDetail(productId: string): Promise<ProductDetail> {
-    const res = await fetch(`${BASE_URL}/products/${productId}`);
+    const res = await fetch(`${BASE_URL}/products/${productId}`, {
+      credentials: 'include'
+    });
     return handleResponse<ProductDetail>(res);
   },
 
@@ -79,6 +103,7 @@ export const api = {
     const res = await fetch(`${BASE_URL}/products/compare`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ product_ids: productIds })
     });
     return handleResponse<ProductDetail[]>(res);
@@ -91,39 +116,76 @@ export const api = {
     if (params.page) q.append('page', params.page.toString());
     if (params.page_size) q.append('page_size', params.page_size.toString());
 
-    const res = await fetch(`${BASE_URL}/orders?${q.toString()}`);
+    const res = await fetch(`${BASE_URL}/orders?${q.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse(res);
   },
 
   // Agent
   async getAiUsage(): Promise<AiUsageStats> {
-    const res = await fetch(`${BASE_URL}/agent/usage`);
+    const res = await fetch(`${BASE_URL}/agent/usage`, {
+      credentials: 'include'
+    });
     return handleResponse<AiUsageStats>(res);
   },
 
-  async getAiSummary(): Promise<ExecutiveSummary> {
-    const res = await fetch(`${BASE_URL}/agent/summary`);
+  async getAiSummary(startDate?: string, endDate?: string): Promise<ExecutiveSummary> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    const res = await fetch(`${BASE_URL}/agent/summary?${params.toString()}`, {
+      credentials: 'include'
+    });
     return handleResponse<ExecutiveSummary>(res);
   },
 
   async getAiSuggestions(): Promise<{ suggestions: string[] }> {
-    const res = await fetch(`${BASE_URL}/agent/suggestions`);
+    const res = await fetch(`${BASE_URL}/agent/suggestions`, {
+      credentials: 'include'
+    });
     return handleResponse(res);
   },
 
-  // Server-Side PDF Download
-  async downloadPdfReport(startDate?: string, endDate?: string): Promise<void> {
+  // Server-Side PDF Download with Robust Validation & Error Handling
+  async downloadPdfReport(startDate?: string, endDate?: string, status: string = 'delivered'): Promise<void> {
     const res = await fetch(`${BASE_URL}/report/pdf`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ start_date: startDate, end_date: endDate })
+      credentials: 'include',
+      body: JSON.stringify({ start_date: startDate, end_date: endDate, status })
     });
-    if (!res.ok) throw new Error('PDF generation failed on server');
+
+    if (!res.ok) {
+      if (res.status === 429) {
+        const retryAfter = res.headers.get('Retry-After') || '60';
+        throw new Error(`Rate limit exceeded for report generation. Retry in ${retryAfter}s.`);
+      }
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.detail || err.error || `Server report error (HTTP ${res.status})`);
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/pdf')) {
+      const errText = await res.text();
+      throw new Error(`Unexpected non-PDF response from server: ${errText.slice(0, 100)}`);
+    }
+
+    // Extract filename from Content-Disposition if provided
+    let filename = `NexusCommerce_Report_${Date.now()}.pdf`;
+    const disposition = res.headers.get('content-disposition');
+    if (disposition) {
+      const match = disposition.match(/filename=["']?([^"';]+)["']?/);
+      if (match && match[1]) {
+        filename = match[1].trim();
+      }
+    }
+
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `NexusCommerce_Executive_Dossier_${Date.now()}.pdf`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);

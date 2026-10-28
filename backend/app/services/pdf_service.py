@@ -140,7 +140,7 @@ def build_server_side_pdf_report(
     elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#4F46E5"), spaceBefore=0, spaceAfter=10))
 
     # Executive AI Summary
-    summary = generate_executive_summary()
+    summary = generate_executive_summary(start_date=start_date, end_date=end_date)
     elements.append(Paragraph("1. Executive Summary & Strategic Synthesis", section_heading))
     elements.append(Paragraph(f"<b>Core Finding</b>: {summary['headline']}", body_style))
     elements.append(Spacer(1, 4))
@@ -169,6 +169,22 @@ def build_server_side_pdf_report(
     # KPI Table with Deltas
     kpis = get_kpi_metrics(start_date, end_date)
     elements.append(Paragraph("2. Macro Performance Scorecard", section_heading))
+
+    def format_prior_and_delta(card_data: dict, is_currency: bool = False) -> tuple:
+        prev = card_data.get("previous_value")
+        delta = card_data.get("delta")
+        if prev is None or not delta or not delta.get("has_data", True):
+            return "—", "N/A"
+        prev_str = f"R$ {prev:,.2f}" if is_currency else f"{prev:,}"
+        pct = delta.get("percentage", 0.0)
+        sign = "+" if pct >= 0 else ""
+        return prev_str, f"{sign}{pct}%"
+
+    gmv_prev, gmv_delta = format_prior_and_delta(kpis["gmv"], is_currency=True)
+    ord_prev, ord_delta = format_prior_and_delta(kpis["orders"])
+    cust_prev, cust_delta = format_prior_and_delta(kpis["customers"])
+    items_prev, items_delta = format_prior_and_delta(kpis["products_sold"])
+
     kpi_rows = [
         [
             Paragraph("<b>Metric</b>", cell_bold),
@@ -177,28 +193,28 @@ def build_server_side_pdf_report(
             Paragraph("<b>Growth Delta</b>", cell_bold)
         ],
         [
-            Paragraph("Total Sales (GMV)", cell_style),
+            Paragraph("Total GMV (incl. freight)", cell_style),
             Paragraph(kpis["gmv"]["formatted"], cell_bold),
-            Paragraph(f"R$ {kpis['gmv']['previous_value']:,.2f}", cell_style),
-            Paragraph(f"+{kpis['gmv']['delta']['percentage']}%", cell_style)
+            Paragraph(gmv_prev, cell_style),
+            Paragraph(gmv_delta, cell_style)
         ],
         [
             Paragraph("Delivered Orders", cell_style),
             Paragraph(kpis["orders"]["formatted"], cell_bold),
-            Paragraph(f"{kpis['orders']['previous_value']:,}", cell_style),
-            Paragraph(f"+{kpis['orders']['delta']['percentage']}%", cell_style)
+            Paragraph(ord_prev, cell_style),
+            Paragraph(ord_delta, cell_style)
         ],
         [
-            Paragraph("Active Unique Customers", cell_style),
+            Paragraph(f"Active Customers (Repeat: {kpis['customers'].get('repeat_buyer_rate', 0)}%)", cell_style),
             Paragraph(kpis["customers"]["formatted"], cell_bold),
-            Paragraph(f"{kpis['customers']['previous_value']:,}", cell_style),
-            Paragraph(f"+{kpis['customers']['delta']['percentage']}%", cell_style)
+            Paragraph(cust_prev, cell_style),
+            Paragraph(cust_delta, cell_style)
         ],
         [
-            Paragraph("Units Sold (SKUs)", cell_style),
+            Paragraph("Products Sold (Units)", cell_style),
             Paragraph(kpis["products_sold"]["formatted"], cell_bold),
-            Paragraph(f"{kpis['products_sold']['previous_value']:,}", cell_style),
-            Paragraph(f"+{kpis['products_sold']['delta']['percentage']}%", cell_style)
+            Paragraph(items_prev, cell_style),
+            Paragraph(items_delta, cell_style)
         ]
     ]
     kpi_table = Table(kpi_rows, colWidths=[160, 130, 140, 102])
@@ -215,7 +231,7 @@ def build_server_side_pdf_report(
     elements.append(Spacer(1, 10))
 
     # Top Categories
-    categories = get_categories_breakdown(limit=6)
+    categories = get_categories_breakdown(limit=6, start_date=start_date, end_date=end_date)
     elements.append(Paragraph("3. Category Revenue Distribution", section_heading))
     cat_rows = [
         [
@@ -280,7 +296,7 @@ def build_server_side_pdf_report(
     elements.append(Spacer(1, 14))
 
     # Geographic Regional Sales
-    geo_data = get_geographic_distribution(limit=6)
+    geo_data = get_geographic_distribution(limit=6, start_date=start_date, end_date=end_date)
     elements.append(Paragraph("5. Geographic Concentration (Top Brazilian Hubs)", section_heading))
     geo_rows = [
         [
