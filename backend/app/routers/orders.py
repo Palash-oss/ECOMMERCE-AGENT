@@ -10,9 +10,11 @@ router = APIRouter(prefix="/api/v1/orders", tags=["Orders"])
 def list_orders_endpoint(
     request: Request,
     status: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=50),
     user: dict = Depends(get_current_user)
 ):
     rate_limiter.enforce(request.client.host if request.client else user["id"])
-    return list_orders(status=status, page=page, page_size=page_size)
+    return list_orders(status=status, start_date=start_date, end_date=end_date, page=page, page_size=page_size)
