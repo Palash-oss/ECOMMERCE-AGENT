@@ -32,25 +32,26 @@ class NumberedCanvas(canvas.Canvas):
 
     def draw_page_decorations(self, page_count):
         self.saveState()
-        # Top banner
-        self.setStrokeColor(colors.HexColor("#4F46E5"))
-        self.setLineWidth(1.5)
+        # Top banner with neon orange accent
+        self.setStrokeColor(colors.HexColor("#FF5A1F"))
+        self.setLineWidth(2.0)
         self.line(40, 755, 572, 755)
 
         self.setFont("Helvetica-Bold", 8)
-        self.setFillColor(colors.HexColor("#475569"))
-        self.drawString(40, 762, "NEXUSCOMMERCE AI | ENTERPRISE ANALYTICS & AI DOSSIER")
+        self.setFillColor(colors.HexColor("#0A0A0A"))
+        self.drawString(40, 762, "NEXUSCOMMERCE AI | ENTERPRISE ANALYTICS & EXECUTIVE DOSSIER")
         self.setFont("Helvetica", 8)
-        self.drawRightString(572, 762, "CONFIDENTIAL")
+        self.setFillColor(colors.HexColor("#71717A"))
+        self.drawRightString(572, 762, "CONFIDENTIAL & AUDITED")
 
         # Bottom banner
-        self.setStrokeColor(colors.HexColor("#CBD5E1"))
+        self.setStrokeColor(colors.HexColor("#E4E4E7"))
         self.setLineWidth(0.75)
         self.line(40, 42, 572, 42)
 
         self.setFont("Helvetica", 8)
-        self.setFillColor(colors.HexColor("#94A3B8"))
-        self.drawString(40, 30, f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())} | CockroachDB CCL v26.2.9")
+        self.setFillColor(colors.HexColor("#71717A"))
+        self.drawString(40, 30, f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())} | CockroachDB Cloud Read-Only")
         self.drawRightString(572, 30, f"Page {self._pageNumber} of {page_count}")
         self.restoreState()
 
@@ -59,7 +60,7 @@ def build_server_side_pdf_report(
     end_date: Optional[str] = None,
     user_role: str = "viewer"
 ) -> io.BytesIO:
-    """Generates an executive, publication-grade PDF report directly in memory."""
+    """Generates an executive, publication-grade PDF report directly in memory styled in black + neon orange."""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -76,9 +77,9 @@ def build_server_side_pdf_report(
         "DocTitle",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=22,
-        leading=26,
-        textColor=colors.HexColor("#0F172A"),
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor("#0A0A0A"),
         spaceAfter=4
     )
 
@@ -86,21 +87,21 @@ def build_server_side_pdf_report(
         "DocSubtitle",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor("#475569"),
-        spaceAfter=12
+        fontSize=9.5,
+        leading=13,
+        textColor=colors.HexColor("#52525B"),
+        spaceAfter=10
     )
 
     section_heading = ParagraphStyle(
         "SecHead",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=12,
-        leading=16,
-        textColor=colors.HexColor("#1E1B4B"),
+        fontSize=11.5,
+        leading=15,
+        textColor=colors.HexColor("#0A0A0A"),
         spaceBefore=10,
-        spaceAfter=6,
+        spaceAfter=5,
         keepWithNext=True
     )
 
@@ -110,7 +111,7 @@ def build_server_side_pdf_report(
         fontName="Helvetica",
         fontSize=8.5,
         leading=12,
-        textColor=colors.HexColor("#334155")
+        textColor=colors.HexColor("#27272A")
     )
 
     cell_style = ParagraphStyle(
@@ -119,7 +120,7 @@ def build_server_side_pdf_report(
         fontName="Helvetica",
         fontSize=8,
         leading=10,
-        textColor=colors.HexColor("#1E293B")
+        textColor=colors.HexColor("#27272A")
     )
 
     cell_bold = ParagraphStyle(
@@ -128,16 +129,25 @@ def build_server_side_pdf_report(
         fontName="Helvetica-Bold",
         fontSize=8,
         leading=10,
-        textColor=colors.HexColor("#0F172A")
+        textColor=colors.HexColor("#0A0A0A")
+    )
+
+    cell_header = ParagraphStyle(
+        "TableHeader",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=8,
+        leading=10,
+        textColor=colors.white
     )
 
     elements = []
 
-    # Title & Metadata
+    # Title & Scope
     elements.append(Paragraph("E-Commerce Intelligence & AI Performance Dossier", title_style))
-    date_str = f"{start_date} to {end_date}" if start_date and end_date else "Full Enterprise Audit (2016-09-15 – 2018-08-29)"
-    elements.append(Paragraph(f"<b>Reporting Scope</b>: {date_str} &nbsp;|&nbsp; <b>User Access Role</b>: {user_role.upper()}", subtitle_style))
-    elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#4F46E5"), spaceBefore=0, spaceAfter=10))
+    date_str = f"{start_date} to {end_date}" if start_date and end_date else "Last 6 Complete Months Benchmark (2018-03-01 to 2018-08-31)"
+    elements.append(Paragraph(f"<b>Reporting Scope</b>: {date_str} &nbsp;|&nbsp; <b>User Access Role</b>: {user_role.upper()} &nbsp;|&nbsp; <b>CockroachDB Status</b>: READ-ONLY AUDIT", subtitle_style))
+    elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#FF5A1F"), spaceBefore=0, spaceAfter=8))
 
     # Executive AI Summary
     summary = generate_executive_summary(start_date=start_date, end_date=end_date)
@@ -150,23 +160,23 @@ def build_server_side_pdf_report(
     actions_html = "<br/>".join([f"• <b>[Recommended Action]</b> {item}" for item in summary["actions"]])
 
     exec_table = Table([
-        [Paragraph(f"<b>Key Insights</b><br/>{insights_html}", cell_style)],
-        [Paragraph(f"<b>Operational Risks</b><br/>{risks_html}", cell_style)],
-        [Paragraph(f"<b>Strategic Next Steps</b><br/>{actions_html}", cell_style)]
+        [Paragraph(f"<b>Key Operational Insights</b><br/>{insights_html}", cell_style)],
+        [Paragraph(f"<b>Supply Chain & Growth Risks</b><br/>{risks_html}", cell_style)],
+        [Paragraph(f"<b>Strategic Commercial Steps</b><br/>{actions_html}", cell_style)]
     ], colWidths=[532])
     exec_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
-        ('BOX', (0,0), (-1,-1), 0.75, colors.HexColor("#E2E8F0")),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
-        ('TOPPADDING', (0,0), (-1,-1), 6),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#FAFAF9")),
+        ('BOX', (0,0), (-1,-1), 0.75, colors.HexColor("#E4E4E7")),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E4E4E7")),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('LEFTPADDING', (0,0), (-1,-1), 7),
+        ('RIGHTPADDING', (0,0), (-1,-1), 7),
     ]))
     elements.append(exec_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 8))
 
-    # KPI Table with Deltas
+    # Macro Performance Scorecard
     kpis = get_kpi_metrics(start_date, end_date)
     elements.append(Paragraph("2. Macro Performance Scorecard", section_heading))
 
@@ -187,10 +197,10 @@ def build_server_side_pdf_report(
 
     kpi_rows = [
         [
-            Paragraph("<b>Metric</b>", cell_bold),
-            Paragraph("<b>Delivered Value</b>", cell_bold),
-            Paragraph("<b>Prior Period Benchmark</b>", cell_bold),
-            Paragraph("<b>Growth Delta</b>", cell_bold)
+            Paragraph("<b>Metric</b>", cell_header),
+            Paragraph("<b>Audited Value</b>", cell_header),
+            Paragraph("<b>Prior Benchmark</b>", cell_header),
+            Paragraph("<b>Growth Delta</b>", cell_header)
         ],
         [
             Paragraph("Total GMV (incl. freight)", cell_style),
@@ -205,7 +215,7 @@ def build_server_side_pdf_report(
             Paragraph(ord_delta, cell_style)
         ],
         [
-            Paragraph(f"Active Customers (Repeat: {kpis['customers'].get('repeat_buyer_rate', 0)}%)", cell_style),
+            Paragraph(f"Unique Customers (Repeat: {kpis['customers'].get('repeat_buyer_rate', 0)}%)", cell_style),
             Paragraph(kpis["customers"]["formatted"], cell_bold),
             Paragraph(cust_prev, cell_style),
             Paragraph(cust_delta, cell_style)
@@ -219,26 +229,26 @@ def build_server_side_pdf_report(
     ]
     kpi_table = Table(kpi_rows, colWidths=[160, 130, 140, 102])
     kpi_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EEF2F6")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0A0A0B")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#FAFAF9")]),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E4E4E7")),
         ('TOPPADDING', (0,0), (-1,-1), 5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
         ('LEFTPADDING', (0,0), (-1,-1), 6),
         ('RIGHTPADDING', (0,0), (-1,-1), 6),
     ]))
     elements.append(kpi_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 8))
 
     # Top Categories
     categories = get_categories_breakdown(limit=6, start_date=start_date, end_date=end_date)
-    elements.append(Paragraph("3. Category Revenue Distribution", section_heading))
+    elements.append(Paragraph("3. Category Revenue Distribution (Top Sectors)", section_heading))
     cat_rows = [
         [
-            Paragraph("<b>Category Name</b>", cell_bold),
-            Paragraph("<b>Units Sold</b>", cell_bold),
-            Paragraph("<b>Total Revenue (BRL)</b>", cell_bold),
-            Paragraph("<b>Market Share</b>", cell_bold)
+            Paragraph("<b>Category Name</b>", cell_header),
+            Paragraph("<b>Units Sold</b>", cell_header),
+            Paragraph("<b>Total Revenue (BRL)</b>", cell_header),
+            Paragraph("<b>Catalog Share</b>", cell_header)
         ]
     ]
     for c in categories:
@@ -250,9 +260,9 @@ def build_server_side_pdf_report(
         ])
     cat_table = Table(cat_rows, colWidths=[180, 110, 130, 112])
     cat_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EEF2F6")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0A0A0B")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#FAFAF9")]),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E4E4E7")),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
         ('LEFTPADDING', (0,0), (-1,-1), 6),
@@ -262,49 +272,51 @@ def build_server_side_pdf_report(
 
     elements.append(PageBreak())
 
-    # Page 2: Top Products & Geographic Breakdown
-    elements.append(Paragraph("4. Top Revenue Products (SKU Velocity)", section_heading))
+    # Page 2: Honest Product Catalog & Geographic Breakdown
+    elements.append(Paragraph("4. Top Revenue Products (Honest SKU Identifiers)", section_heading))
+    elements.append(Paragraph("<i>Note: Source dataset contains no merchant product names; items are identified by category and unique short code.</i>", subtitle_style))
     prod_catalog = list_products(page=1, page_size=8)
     prod_rows = [
         [
-            Paragraph("<b>SKU Identifier</b>", cell_bold),
-            Paragraph("<b>Category</b>", cell_bold),
-            Paragraph("<b>Avg Price</b>", cell_bold),
-            Paragraph("<b>Units Sold</b>", cell_bold),
-            Paragraph("<b>Demand Tier</b>", cell_bold)
+            Paragraph("<b>Item & Short Code</b>", cell_header),
+            Paragraph("<b>Category</b>", cell_header),
+            Paragraph("<b>Avg Unit Price</b>", cell_header),
+            Paragraph("<b>Units Sold</b>", cell_header),
+            Paragraph("<b>Revenue Tier</b>", cell_header)
         ]
     ]
     for p in prod_catalog["items"]:
+        short_code = p["product_id"][:6].upper()
         prod_rows.append([
-            Paragraph(f"<code>{p['product_id'][:12]}...</code>", cell_style),
+            Paragraph(f"<b>[{short_code}]</b> {p['title']}", cell_style),
             Paragraph(p["category"], cell_style),
             Paragraph(f"R$ {p['price']:,.2f}", cell_style),
             Paragraph(f"{p['units_sold']:,}", cell_style),
             Paragraph(p["velocity_tier"], cell_style)
         ])
-    prod_table = Table(prod_rows, colWidths=[130, 140, 95, 85, 82])
+    prod_table = Table(prod_rows, colWidths=[160, 120, 90, 80, 82])
     prod_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EEF2F6")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0A0A0B")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#FAFAF9")]),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E4E4E7")),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
         ('LEFTPADDING', (0,0), (-1,-1), 6),
         ('RIGHTPADDING', (0,0), (-1,-1), 6),
     ]))
     elements.append(prod_table)
-    elements.append(Spacer(1, 14))
+    elements.append(Spacer(1, 12))
 
     # Geographic Regional Sales
     geo_data = get_geographic_distribution(limit=6, start_date=start_date, end_date=end_date)
-    elements.append(Paragraph("5. Geographic Concentration (Top Brazilian Hubs)", section_heading))
+    elements.append(Paragraph("5. Geographic Concentration (Top Consumer Hubs)", section_heading))
     geo_rows = [
         [
-            Paragraph("<b>State</b>", cell_bold),
-            Paragraph("<b>State Name</b>", cell_bold),
-            Paragraph("<b>Active Customers</b>", cell_bold),
-            Paragraph("<b>Total Orders</b>", cell_bold),
-            Paragraph("<b>Avg Freight</b>", cell_bold)
+            Paragraph("<b>State</b>", cell_header),
+            Paragraph("<b>Region Name</b>", cell_header),
+            Paragraph("<b>Active Buyers</b>", cell_header),
+            Paragraph("<b>Total Orders</b>", cell_header),
+            Paragraph("<b>Avg Freight (BRL)</b>", cell_header)
         ]
     ]
     for g in geo_data:
@@ -317,9 +329,9 @@ def build_server_side_pdf_report(
         ])
     geo_table = Table(geo_rows, colWidths=[65, 160, 110, 100, 97])
     geo_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EEF2F6")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0A0A0B")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#FAFAF9")]),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E4E4E7")),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
         ('LEFTPADDING', (0,0), (-1,-1), 6),

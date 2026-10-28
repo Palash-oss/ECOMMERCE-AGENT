@@ -2,7 +2,8 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Query, Depends, Request
 from backend.app.services.product_service import (
-    search_products_suggestions, list_products, get_product_details, compare_products_stats
+    search_products_suggestions, list_products, get_product_details, compare_products_stats,
+    get_category_tiles_summary
 )
 from backend.app.security.auth import get_current_user
 from backend.app.security.rate_limiter import rate_limiter
@@ -11,6 +12,15 @@ router = APIRouter(prefix="/api/v1/products", tags=["Products"])
 
 class CompareRequest(BaseModel):
     product_ids: List[str] = Field(..., min_length=2, max_length=3)
+
+@router.get("/categories/summary")
+def get_category_tiles_endpoint(
+    request: Request,
+    user: dict = Depends(get_current_user)
+):
+    rate_limiter.enforce(request.client.host if request.client else user["id"])
+    return get_category_tiles_summary()
+
 
 @router.get("/search")
 def search_suggestions_endpoint(

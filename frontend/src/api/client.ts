@@ -61,6 +61,20 @@ export const api = {
   },
 
   // Products
+  async getCategoryTiles(): Promise<Array<{
+    category: string;
+    category_pt: string;
+    sku_count: number;
+    units_sold: number;
+    total_revenue: number;
+    avg_price: number;
+  }>> {
+    const res = await fetch(`${BASE_URL}/products/categories/summary`, {
+      credentials: 'include'
+    });
+    return handleResponse(res);
+  },
+
   async searchSuggestions(q: string): Promise<Array<{ product_id: string; title: string; category: string; price: number; total_sales: number; photos_qty: number }>> {
     const res = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(q)}`, {
       credentials: 'include'

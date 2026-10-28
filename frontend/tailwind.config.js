@@ -9,39 +9,52 @@ export default {
     extend: {
       colors: {
         bento: {
-          bg: '#EEF0FA',
+          bg: '#F4F4F2',
           card: '#FFFFFF',
-          cardHover: '#FAFAFF',
-          darkBg: '#0B0F19',
-          darkCard: '#131927',
-          darkBorder: '#1E293B',
-          muted: '#64748B',
-          text: '#0F172A',
-          darkText: '#F8FAFC'
+          cardHover: '#FAFAF8',
+          border: '#E7E7E4',
+          darkBg: '#0A0A0B',
+          darkCard: '#121214',
+          darkBorder: '#26262B',
+          muted: '#71717A',
+          darkMuted: '#A1A1AA',
+          text: '#0A0A0A',
+          darkText: '#FAFAFA'
         },
         brand: {
-          indigo: '#4F46E5',
-          indigoDark: '#4338CA',
-          violet: '#7C3AED',
-          orange: '#F97316',
+          orange: '#FF5A1F',
+          orangeDark: '#E84A10',
+          neon: '#FF6A2B',
+          neonHover: '#FF7E47',
+          neonGlow: 'rgba(255, 106, 43, 0.25)',
+          softOrange: 'rgba(255, 90, 31, 0.10)',
+          darkSoftOrange: 'rgba(255, 106, 43, 0.14)',
+          // Backward-compatible aliases mapped to neon orange
+          indigo: '#FF5A1F',
+          indigoDark: '#E84A10',
+          violet: '#FF6A2B',
           emerald: '#10B981',
-          rose: '#EF4444'
+          rose: '#EF4444',
+          amber: '#F59E0B'
         }
       },
       borderRadius: {
-        'bento': '24px',
-        'bento-sm': '16px',
-        'bento-lg': '32px',
+        'bento': '20px',
+        'bento-sm': '12px',
+        'bento-lg': '28px',
       },
       boxShadow: {
-        'bento': '0 4px 20px -2px rgba(17, 24, 39, 0.05), 0 2px 6px -1px rgba(17, 24, 39, 0.02)',
-        'bento-hover': '0 10px 30px -4px rgba(17, 24, 39, 0.08), 0 4px 10px -2px rgba(17, 24, 39, 0.04)',
-        'bento-hero': '0 12px 35px -5px rgba(79, 70, 229, 0.35)',
+        'bento': '0 2px 12px -2px rgba(10, 10, 10, 0.04), 0 1px 3px -1px rgba(10, 10, 10, 0.02)',
+        'bento-hover': '0 8px 24px -4px rgba(255, 90, 31, 0.12), 0 2px 8px -2px rgba(10, 10, 10, 0.04)',
+        'bento-hero': '0 12px 32px -6px rgba(255, 90, 31, 0.35)',
+        'neon-glow': '0 0 25px rgba(255, 106, 43, 0.35)',
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       }
     },
   },
   plugins: [],
 }
+

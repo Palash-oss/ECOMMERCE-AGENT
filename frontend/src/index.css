@@ -2,10 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-primary: #F4F4F2;
+  --bg-surface: #FFFFFF;
+  --border-subtle: #E7E7E4;
+  --text-primary: #0A0A0A;
+  --text-muted: #71717A;
+  --accent-orange: #FF5A1F;
+  --accent-hover: #E84A10;
+  --accent-soft: rgba(255, 90, 31, 0.10);
+}
+
+.dark {
+  --bg-primary: #0A0A0B;
+  --bg-surface: #121214;
+  --border-subtle: #26262B;
+  --text-primary: #FAFAFA;
+  --text-muted: #A1A1AA;
+  --accent-orange: #FF6A2B;
+  --accent-hover: #FF7E47;
+  --accent-soft: rgba(255, 106, 43, 0.14);
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
   }
+}
+
+/* Lenis smooth scrolling rules */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
 
 /* Custom soft scrollbar */
@@ -17,17 +63,32 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #d4d4d8;
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #27272a;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #a1a1aa;
 }
 
 /* Smooth transitions */
 .transition-bento {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Pulse Glow Animation */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 106, 43, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 106, 43, 0.6);
+  }
+}
+
+.neon-border-glow {
+  animation: neon-pulse 3s infinite;
+}
+

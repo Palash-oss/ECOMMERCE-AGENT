@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, AlertTriangle, ArrowRight, Lightbulb, CheckCircle } from 'lucide-react';
+import { Sparkles, AlertTriangle, ArrowRight, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { ExecutiveSummary } from '../../types';
 
 interface ExecutiveSummaryCardProps {
@@ -11,42 +11,44 @@ export const ExecutiveSummaryCard: React.FC<ExecutiveSummaryCardProps> = ({ summ
   if (!summary) return null;
 
   return (
-    <div className="bg-gradient-to-r from-indigo-50/80 via-white to-purple-50/80 dark:from-slate-900/80 dark:via-bento-darkCard dark:to-slate-900/80 rounded-bento p-6 shadow-bento border border-indigo-100/80 dark:border-indigo-900/30">
-      <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-bento-border dark:border-bento-darkBorder relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-80 h-40 bg-orange-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-orange-500/10 transition-bento"></div>
+
+      <div className="flex items-center justify-between gap-4 mb-3 flex-wrap relative z-10">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-indigo to-brand-violet text-white flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-orange-500/15 text-brand-orange dark:text-brand-neon flex items-center justify-center shadow-sm">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <h3 className="font-bold text-sm text-bento-text dark:text-bento-darkText flex items-center gap-2">
               Autonomous AI Executive Synthesis
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-brand-indigo uppercase tracking-wider">
-                Live Data Audit
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-brand-orange dark:text-brand-neon uppercase tracking-wider">
+                Audited Telemetry
               </span>
             </h3>
-            <p className="text-xs font-semibold text-brand-indigo mt-0.5">{summary.headline}</p>
+            <p className="text-xs font-semibold text-brand-orange dark:text-brand-neon mt-0.5">{summary.headline}</p>
           </div>
         </div>
 
         <button
           onClick={() => onAskAi("Elaborate on the risks and recommended actions from the executive summary")}
-          className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-brand-indigo hover:bg-indigo-50 dark:hover:bg-slate-700 transition-bento flex items-center gap-1.5 shadow-sm"
+          className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-brand-orange hover:bg-orange-500/10 transition-bento flex items-center gap-1.5 shadow-sm"
         >
           <span>Elaborate with AI</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-800">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800/80 relative z-10">
         {/* Insights */}
         <div className="space-y-1.5">
-          <p className="text-[11px] font-bold text-bento-muted uppercase tracking-wider flex items-center gap-1.5">
+          <p className="text-[11px] font-bold text-bento-muted dark:text-bento-darkMuted uppercase tracking-wider flex items-center gap-1.5">
             <Lightbulb className="w-3.5 h-3.5 text-amber-500" /> Key Insights
           </p>
-          <ul className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
+          <ul className="space-y-1 text-xs text-neutral-700 dark:text-neutral-300">
             {summary.insights.slice(0, 2).map((ins, i) => (
               <li key={i} className="flex items-start gap-1.5">
-                <span className="text-brand-indigo font-bold">•</span>
+                <span className="text-brand-orange font-bold">•</span>
                 <span>{ins}</span>
               </li>
             ))}
@@ -58,7 +60,7 @@ export const ExecutiveSummaryCard: React.FC<ExecutiveSummaryCardProps> = ({ summ
           <p className="text-[11px] font-bold text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5" /> Operational Risks
           </p>
-          <ul className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
+          <ul className="space-y-1 text-xs text-neutral-700 dark:text-neutral-300">
             {summary.risks.map((risk, i) => (
               <li key={i} className="flex items-start gap-1.5">
                 <span className="text-rose-500 font-bold">•</span>
@@ -70,13 +72,13 @@ export const ExecutiveSummaryCard: React.FC<ExecutiveSummaryCardProps> = ({ summ
 
         {/* Strategic Actions */}
         <div className="space-y-1.5">
-          <p className="text-[11px] font-bold text-brand-emerald uppercase tracking-wider flex items-center gap-1.5">
-            <CheckCircle className="w-3.5 h-3.5" /> Recommended Actions
+          <p className="text-[11px] font-bold text-emerald-500 uppercase tracking-wider flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Recommended Actions
           </p>
-          <ul className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
+          <ul className="space-y-1 text-xs text-neutral-700 dark:text-neutral-300">
             {summary.actions.slice(0, 2).map((act, i) => (
               <li key={i} className="flex items-start gap-1.5">
-                <span className="text-brand-emerald font-bold">•</span>
+                <span className="text-emerald-500 font-bold">•</span>
                 <span>{act}</span>
               </li>
             ))}

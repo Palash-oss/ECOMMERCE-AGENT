@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, TrendingUp } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { GeoRegion } from '../../types';
 
 interface GeoGrowthChartProps {
@@ -11,16 +11,16 @@ export const GeoGrowthChart: React.FC<GeoGrowthChartProps> = ({ data }) => {
   const totalCustomers = topStates.reduce((acc, curr) => acc + curr.customers, 0);
 
   return (
-    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-white/70 dark:border-bento-darkBorder flex flex-col h-full">
+    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-bento-border dark:border-bento-darkBorder flex flex-col h-full">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-base text-bento-text dark:text-bento-darkText">
-            Customer Growth by Location
+            Regional Customer Demand
           </h3>
-          <p className="text-xs text-bento-muted mt-0.5">Top demographic consumer hubs in Brazil</p>
+          <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">Top demographic consumer hubs in Brazil</p>
         </div>
-        <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-          <MapPin className="w-3 h-3 text-brand-indigo" /> 27 States
+        <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/10 text-brand-orange dark:text-brand-neon">
+          <MapPin className="w-3 h-3" /> 27 States
         </span>
       </div>
 
@@ -30,7 +30,7 @@ export const GeoGrowthChart: React.FC<GeoGrowthChartProps> = ({ data }) => {
           return (
             <div key={st.state_code} className="flex items-center gap-3">
               {/* Flag/State Badge */}
-              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-brand-indigo">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/10 dark:bg-orange-500/15 border border-orange-500/20 flex items-center justify-center font-bold text-xs text-brand-orange dark:text-brand-neon font-mono">
                 {st.state_code}
               </div>
 
@@ -40,21 +40,21 @@ export const GeoGrowthChart: React.FC<GeoGrowthChartProps> = ({ data }) => {
                   <span className="font-semibold text-bento-text dark:text-bento-darkText truncate">
                     {st.state_name}
                   </span>
-                  <span className="font-mono text-bento-muted text-[11px]">
+                  <span className="font-mono text-bento-muted dark:text-bento-darkMuted text-[11px]">
                     {st.customers.toLocaleString()} buyers ({share}%)
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-1.5 rounded-full mt-1.5 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-brand-indigo to-brand-violet rounded-full transition-bento"
+                    className="h-full bg-brand-orange rounded-full transition-bento shadow-[0_0_8px_rgba(255,106,43,0.35)]"
                     style={{ width: `${Math.max(12, share)}%` }}
                   ></div>
                 </div>
               </div>
 
               {/* Freight Overhead */}
-              <div className="text-right text-[11px] font-mono text-slate-500 hidden sm:block">
+              <div className="text-right text-[11px] font-mono text-neutral-500 hidden sm:block">
                 R$ {st.avg_freight.toFixed(1)}/ship
               </div>
             </div>

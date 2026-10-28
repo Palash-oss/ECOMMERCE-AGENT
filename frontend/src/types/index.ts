@@ -81,6 +81,9 @@ export interface ProductItem {
   photos_qty: number;
   weight_g: number;
   dimensions_cm?: string;
+  length_cm?: number;
+  width_cm?: number;
+  height_cm?: number;
 }
 
 export interface ProductDetail extends ProductItem {

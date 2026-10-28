@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { Topbar } from './components/layout/Topbar';
+import { LandingPage } from './components/landing/LandingPage';
 import { KpiCard } from './components/dashboard/KpiCard';
 import { CustomerHabitsChart } from './components/dashboard/CustomerHabitsChart';
 import { CategoryDonutChart } from './components/dashboard/CategoryDonutChart';
@@ -15,14 +16,20 @@ import { CommandPalette } from './components/products/CommandPalette';
 import { ProductList } from './components/products/ProductList';
 import { ProductDetailModal } from './components/products/ProductDetailModal';
 import { ProductCompareModal } from './components/products/ProductCompareModal';
+import { ReportDownloadModal } from './components/report/ReportDownloadModal';
 import { api } from './api/client';
 import { 
   OverviewKpis, TimeseriesPoint, CategoryBreakdown, GeoRegion, 
   ProductItem, OrderItem, AiUsageStats, ExecutiveSummary 
 } from './types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft, FileText } from 'lucide-react';
 
 export const App: React.FC = () => {
+  // Navigation: '/' for Landing Page, '/app' for Dashboard
+  const [view, setView] = useState<'landing' | 'app'>(() => {
+    return window.location.pathname.startsWith('/app') ? 'app' : 'landing';
+  });
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(false);
 
@@ -43,9 +50,27 @@ export const App: React.FC = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isUsageDrawerOpen, setIsUsageDrawerOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [chatInitialPrompt, setChatInitialPrompt] = useState<string | undefined>(undefined);
 
-  // Global dark mode class sync
+  // Browser back/forward navigation sync
+  useEffect(() => {
+    const handlePopState = () => {
+      setView(window.location.pathname.startsWith('/app') ? 'app' : 'landing');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (targetView: 'landing' | 'app') => {
+    setView(targetView);
+    const targetPath = targetView === 'app' ? '/app' : '/';
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({}, '', targetPath);
+    }
+  };
+
+  // Global dark mode sync
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -104,6 +129,25 @@ export const App: React.FC = () => {
     setIsChatOpen(true);
   };
 
+  // Render Landing Page if view === 'landing'
+  if (view === 'landing') {
+    return (
+      <>
+        <LandingPage
+          onLaunchDashboard={() => navigateTo('app')}
+          onOpenReportModal={() => setIsReportModalOpen(true)}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+        />
+        {/* Report Modal can also be opened from landing page */}
+        <ReportDownloadModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-bento-bg dark:bg-bento-darkBg text-bento-text dark:text-bento-darkText font-sans">
       
@@ -114,19 +158,35 @@ export const App: React.FC = () => {
         onOpenChat={() => {
           setChatInitialPrompt(undefined);
           setIsChatOpen(true);
-        }} 
+        }}
+        onOpenReportModal={() => setIsReportModalOpen(true)}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         
-        {/* Topbar */}
+        {/* Topbar with Back to Landing & Report Trigger */}
+        <div className="flex items-center justify-between border-b border-bento-border dark:border-bento-darkBorder px-6 py-2 bg-bento-card/50 dark:bg-bento-darkCard/50 backdrop-blur-sm">
+          <button
+            onClick={() => navigateTo('landing')}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-bento-muted dark:text-bento-darkMuted hover:text-brand-orange transition-bento"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Landing Page</span>
+          </button>
+          <div className="text-[11px] font-mono text-bento-muted dark:text-bento-darkMuted flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Cluster: AWS ap-south-1 · CockroachDB DefaultDB</span>
+          </div>
+        </div>
+
         <Topbar
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           onOpenChat={() => {
             setChatInitialPrompt(undefined);
             setIsChatOpen(true);
           }}
+          onOpenReportModal={() => setIsReportModalOpen(true)}
           darkMode={darkMode}
           setDarkMode={setDarkMode}
         />
@@ -136,7 +196,7 @@ export const App: React.FC = () => {
           
           {loading && !kpis ? (
             <div className="h-[60vh] flex flex-col items-center justify-center gap-3 text-bento-muted text-xs">
-              <Loader2 className="w-8 h-8 animate-spin text-brand-indigo" />
+              <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
               <span>Connecting to CockroachDB and computing real-time metrics...</span>
             </div>
           ) : (
@@ -207,7 +267,7 @@ export const App: React.FC = () => {
                     <h2 className="text-xl font-bold tracking-tight text-bento-text dark:text-bento-darkText">
                       Live Product Explorer
                     </h2>
-                    <p className="text-xs text-bento-muted mt-0.5">
+                    <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">
                       Explore 32,951 catalog SKUs with live margins, sales velocity, and category rankings
                     </p>
                   </div>
@@ -225,7 +285,7 @@ export const App: React.FC = () => {
                     <h2 className="text-xl font-bold tracking-tight text-bento-text dark:text-bento-darkText">
                       Enterprise Order Ledger
                     </h2>
-                    <p className="text-xs text-bento-muted mt-0.5">
+                    <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">
                       99,441 verified order fulfillment states across Brazil
                     </p>
                   </div>
@@ -238,23 +298,22 @@ export const App: React.FC = () => {
 
               {/* TAB 4: PDF REPORT OVERVIEW */}
               {activeTab === 'report' && (
-                <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-8 shadow-bento border border-white/70 dark:border-bento-darkBorder text-center max-w-2xl mx-auto my-12 animate-in fade-in duration-200">
-                  <div className="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/40 text-brand-indigo flex items-center justify-center mx-auto mb-4 shadow-bento-hero">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-8 shadow-bento border border-bento-border dark:border-bento-darkBorder text-center max-w-2xl mx-auto my-12 animate-in fade-in duration-200">
+                  <div className="w-16 h-16 rounded-3xl bg-orange-500/10 text-brand-orange flex items-center justify-center mx-auto mb-4 shadow-bento-hero">
+                    <FileText className="w-8 h-8" />
                   </div>
                   <h3 className="text-lg font-bold text-bento-text dark:text-bento-darkText">
                     Download Enterprise PDF Dossier
                   </h3>
-                  <p className="text-xs text-bento-muted mt-2 max-w-md mx-auto">
+                  <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-2 max-w-md mx-auto">
                     Generates a multi-page publication-grade PDF report compiled server-side via ReportLab, containing macro KPI scorecards, category splits, top SKUs, and strategic AI insights.
                   </p>
                   <button
-                    onClick={() => api.downloadPdfReport()}
-                    className="mt-6 px-6 py-3 rounded-xl bg-brand-indigo hover:bg-brand-indigoDark text-white text-xs font-bold shadow-bento-hero transition-bento"
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="mt-6 px-6 py-3 rounded-xl bg-brand-orange hover:bg-brand-orangeDark text-white text-xs font-bold shadow-bento-hero transition-bento flex items-center gap-2 mx-auto"
                   >
-                    Generate & Download PDF Dossier
+                    <FileText className="w-4 h-4" />
+                    <span>Open PDF Export Modal</span>
                   </button>
                 </div>
               )}
@@ -270,6 +329,8 @@ export const App: React.FC = () => {
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
         onSelectProduct={(pid) => setSelectedProductId(pid)}
+        onNavigateTab={(tab) => setActiveTab(tab)}
+        onAskAiPrompt={handleOpenAiWithPrompt}
       />
 
       {/* AI Chat Slide-Over Panel */}
@@ -298,6 +359,12 @@ export const App: React.FC = () => {
         productIds={compareProductIds}
         onClose={() => setCompareProductIds([])}
         onSelectProduct={(pid) => setSelectedProductId(pid)}
+      />
+
+      {/* PDF Report Download Modal */}
+      <ReportDownloadModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
       />
 
     </div>

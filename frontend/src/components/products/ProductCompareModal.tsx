@@ -36,23 +36,23 @@ export const ProductCompareModal: React.FC<ProductCompareModalProps> = ({
   if (productIds.length < 2) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 md:p-12 flex justify-center items-center">
-      <div className="w-full max-w-4xl bg-bento-card dark:bg-bento-darkCard rounded-bento shadow-2xl border border-white/70 dark:border-bento-darkBorder overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm p-4 sm:p-6 md:p-12 flex justify-center items-center">
+      <div className="w-full max-w-4xl bg-bento-card dark:bg-bento-darkCard rounded-bento shadow-2xl border border-bento-border dark:border-bento-darkBorder overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-6 border-b border-bento-border dark:border-bento-darkBorder flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-brand-indigo flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-brand-orange flex items-center justify-center">
               <Scale className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-bold text-base text-bento-text dark:text-bento-darkText">
                 Side-by-Side SKU Comparison
               </h3>
-              <p className="text-xs text-bento-muted mt-0.5">Comparing {productIds.length} products across sales velocity and margins</p>
+              <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">Comparing {productIds.length} catalog items across sales velocity and margins</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="p-1 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">
             <X className="w-5 h-5" />
           </button>
         </div>

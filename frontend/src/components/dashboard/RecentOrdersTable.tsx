@@ -12,26 +12,26 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ orders, on
     switch (status.toLowerCase()) {
       case 'delivered':
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-brand-emerald">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
             <CheckCircle2 className="w-2.5 h-2.5" /> Delivered
           </span>
         );
       case 'shipped':
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-brand-indigo">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/10 text-brand-orange">
             <Truck className="w-2.5 h-2.5" /> Shipped
           </span>
         );
       case 'canceled':
       case 'unavailable':
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-brand-rose">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500">
             <XCircle className="w-2.5 h-2.5" /> {status}
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-600">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-neutral-500/10 text-neutral-400">
             <Clock className="w-2.5 h-2.5" /> {status}
           </span>
         );
@@ -39,17 +39,17 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ orders, on
   };
 
   return (
-    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-white/70 dark:border-bento-darkBorder">
+    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-bento-border dark:border-bento-darkBorder">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-base text-bento-text dark:text-bento-darkText">
             Recent Order Velocity
           </h3>
-          <p className="text-xs text-bento-muted mt-0.5">Live order ledger with PII masking</p>
+          <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">Live CockroachDB order ledger with PII masking</p>
         </div>
         <button
           onClick={onViewAll}
-          className="text-xs font-semibold text-brand-indigo hover:text-brand-indigoDark flex items-center gap-1 transition-bento"
+          className="text-xs font-semibold text-brand-orange hover:text-brand-orangeDark flex items-center gap-1 transition-bento"
         >
           View All <ArrowUpRight className="w-3.5 h-3.5" />
         </button>
@@ -58,7 +58,7 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ orders, on
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="text-bento-muted border-b border-slate-100 dark:border-slate-800">
+            <tr className="text-bento-muted dark:text-bento-darkMuted border-b border-neutral-100 dark:border-neutral-800">
               <th className="pb-3 font-semibold">Order ID</th>
               <th className="pb-3 font-semibold">Destination</th>
               <th className="pb-3 font-semibold">Date</th>
@@ -67,9 +67,9 @@ export const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ orders, on
               <th className="pb-3 font-semibold text-right">Total</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100/70 dark:divide-slate-800/40">
+          <tbody className="divide-y divide-neutral-100/70 dark:divide-neutral-800/40">
             {orders.slice(0, 5).map((o) => (
-              <tr key={o.order_id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-bento">
+              <tr key={o.order_id} className="hover:bg-neutral-50/60 dark:hover:bg-neutral-800/30 transition-bento">
                 <td className="py-3 font-mono text-bento-muted font-medium">{o.order_id}</td>
                 <td className="py-3 font-medium text-bento-text dark:text-bento-darkText">
                   {o.city}, {o.state}

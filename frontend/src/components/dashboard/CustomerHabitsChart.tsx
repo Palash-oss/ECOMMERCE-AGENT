@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend 
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid 
 } from 'recharts';
 import { TimeseriesPoint } from '../../types';
 
@@ -15,18 +15,18 @@ export const CustomerHabitsChart: React.FC<CustomerHabitsChartProps> = ({ data }
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-900 text-white p-3.5 rounded-2xl shadow-xl border border-slate-700 text-xs">
-          <p className="font-bold text-slate-200 mb-1.5">{label}</p>
+        <div className="bg-[#121214] text-white p-3.5 rounded-2xl shadow-xl border border-[#26262B] text-xs">
+          <p className="font-bold text-neutral-200 mb-1.5">{label}</p>
           <div className="space-y-1">
-            <p className="flex items-center justify-between gap-4 text-indigo-300">
+            <p className="flex items-center justify-between gap-4 text-orange-400">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-brand-indigo"></span> Sales:
+                <span className="w-2 h-2 rounded-full bg-brand-orange"></span> Sales:
               </span>
               <span className="font-mono font-bold">R$ {Number(payload[0].value).toLocaleString()}</span>
             </p>
-            <p className="flex items-center justify-between gap-4 text-orange-300">
+            <p className="flex items-center justify-between gap-4 text-neutral-400">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-brand-orange"></span> Freight:
+                <span className="w-2 h-2 rounded-full bg-neutral-500"></span> Freight:
               </span>
               <span className="font-mono font-bold">R$ {Number(payload[1].value).toLocaleString()}</span>
             </p>
@@ -38,22 +38,22 @@ export const CustomerHabitsChart: React.FC<CustomerHabitsChartProps> = ({ data }
   };
 
   return (
-    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-white/70 dark:border-bento-darkBorder flex flex-col h-full">
+    <div className="bg-bento-card dark:bg-bento-darkCard rounded-bento p-6 shadow-bento border border-bento-border dark:border-bento-darkBorder flex flex-col h-full">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-base text-bento-text dark:text-bento-darkText">
             Sales & Logistics Velocity
           </h3>
-          <p className="text-xs text-bento-muted mt-0.5" title="Partial months (Sep/Oct 2016, Sep/Oct 2018) excluded to prevent artificial velocity dips.">
+          <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5" title="Partial months (Sep/Oct 2016, Sep/Oct 2018) excluded to prevent artificial velocity dips.">
             Monthly merchandise revenue vs freight overhead <span className="opacity-75 cursor-help underline decoration-dotted text-[11px]">(complete months only)</span>
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
-          <span className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-brand-indigo"></span> Sales
+          <span className="flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> Sales
           </span>
-          <span className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> Freight
+          <span className="flex items-center gap-1.5 font-medium text-neutral-500 dark:text-neutral-400">
+            <span className="w-2.5 h-2.5 rounded-full bg-neutral-400"></span> Freight
           </span>
         </div>
       </div>
@@ -66,17 +66,17 @@ export const CustomerHabitsChart: React.FC<CustomerHabitsChartProps> = ({ data }
               dataKey="display_name" 
               tickLine={false} 
               axisLine={false} 
-              tick={{ fontSize: 11, fill: '#94A3B8' }} 
+              tick={{ fontSize: 11, fill: '#71717A' }} 
             />
             <YAxis 
               tickLine={false} 
               axisLine={false} 
-              tick={{ fontSize: 11, fill: '#94A3B8' }}
+              tick={{ fontSize: 11, fill: '#71717A' }}
               tickFormatter={(v) => `R$ ${(v / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="sales" name="Sales" fill="#4F46E5" radius={[6, 6, 0, 0]} maxBarSize={32} />
-            <Bar dataKey="freight" name="Freight" fill="#F97316" radius={[6, 6, 0, 0]} maxBarSize={32} />
+            <Bar dataKey="sales" name="Sales" fill="#FF5A1F" radius={[6, 6, 0, 0]} maxBarSize={32} />
+            <Bar dataKey="freight" name="Freight" fill="#71717A" radius={[6, 6, 0, 0]} maxBarSize={32} />
           </BarChart>
         </ResponsiveContainer>
       </div>
