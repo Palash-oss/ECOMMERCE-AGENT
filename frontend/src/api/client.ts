@@ -188,7 +188,7 @@ export const api = {
     }
 
     // Extract filename from Content-Disposition or fallback to timestamped title
-    let filename = `NexusCommerce_Executive_Dossier_${new Date().toISOString().split('T')[0]}.pdf`;
+    let filename = `NexusCommerce_Executive_Performance_Report_${new Date().toISOString().split('T')[0]}.pdf`;
     const disposition = res.headers.get('content-disposition');
     if (disposition) {
       const match = disposition.match(/filename=["']?([^"';\n]+)["']?/i);

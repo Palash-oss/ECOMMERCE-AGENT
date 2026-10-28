@@ -46,7 +46,7 @@ export const ReportDownloadModal: React.FC<ReportDownloadModalProps> = ({ isOpen
   const stepsList = [
     { title: 'Querying Live Analytics Data', desc: 'Fetching delivered orders & item revenue values' },
     { title: 'Reconciling Canonical Metrics', desc: 'Validating category sums and repeat buyer rates' },
-    { title: 'Compiling Vector PDF Dossier', desc: 'Rendering server-side ReportLab document' },
+    { title: 'Compiling Vector PDF Report', desc: 'Rendering server-side ReportLab document' },
   ];
 
   return (
@@ -61,7 +61,7 @@ export const ReportDownloadModal: React.FC<ReportDownloadModalProps> = ({ isOpen
             </div>
             <div>
               <h3 className="font-bold text-sm text-bento-text dark:text-bento-darkText">
-                Export Executive PDF Dossier
+                Export Executive PDF Report
               </h3>
               <p className="text-[11px] text-bento-muted dark:text-bento-darkMuted">
                 Server-side ReportLab generation with zero synthetic numbers
@@ -85,7 +85,7 @@ export const ReportDownloadModal: React.FC<ReportDownloadModalProps> = ({ isOpen
             <div className="py-6 space-y-4">
               <div className="flex items-center justify-center gap-2 text-brand-orange text-sm font-bold">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Generating dossier...</span>
+                <span>Generating executive report...</span>
               </div>
               <div className="space-y-3">
                 {stepsList.map((s, idx) => {
@@ -123,7 +123,7 @@ export const ReportDownloadModal: React.FC<ReportDownloadModalProps> = ({ isOpen
           ) : step === 4 ? (
             <div className="py-8 text-center space-y-2">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-              <h4 className="text-sm font-bold text-bento-text dark:text-bento-darkText">Dossier Downloaded Successfully!</h4>
+              <h4 className="text-sm font-bold text-bento-text dark:text-bento-darkText">Executive Report Downloaded Successfully!</h4>
               <p className="text-bento-muted text-xs">Your PDF file has been compiled and saved to your device.</p>
             </div>
           ) : (
@@ -210,7 +210,7 @@ export const ReportDownloadModal: React.FC<ReportDownloadModalProps> = ({ isOpen
                   className="px-5 py-2.5 rounded-xl bg-brand-orange hover:bg-brand-orangeDark text-white text-xs font-bold shadow-bento-hero flex items-center gap-2 transition-bento"
                 >
                   <Download className="w-4 h-4" />
-                  <span>Download PDF Dossier</span>
+                  <span>Download PDF Report</span>
                 </button>
               </div>
             </>

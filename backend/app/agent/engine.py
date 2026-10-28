@@ -56,9 +56,10 @@ def run_agent_turn_stream(
             total_prompt_tokens += usage.get("prompt_tokens", 0)
             total_completion_tokens += usage.get("completion_tokens", 0)
         except Exception as e:
-            logger.warning("Primary provider %s error: %s. Attempting graceful synthesis.", provider_name, e)
-            tool_calls = None
-            direct_text = f"Analyzed analytics telemetry across verified orders. Note: Encountered upstream provider message ({str(e)[:60]})."
+            logger.warning("Primary provider %s error: %s. Engaging deterministic local tool routing.", provider_name, e)
+            tool_calls, direct_text, usage = provider.local.generate_chat_response(messages, TOOL_DEFINITIONS)
+            total_prompt_tokens += usage.get("prompt_tokens", 0)
+            total_completion_tokens += usage.get("completion_tokens", 0)
 
         if not tool_calls:
             # Model is ready to formulate final answer or provided text directly
@@ -130,10 +131,17 @@ def run_agent_turn_stream(
     
     stream_tokens_count = 0
     accumulated_chunks = []
-    for chunk in provider.stream_final_answer(messages):
-        accumulated_chunks.append(chunk)
-        stream_tokens_count += len(chunk.split())
-        yield f"data: {json.dumps({'type': 'token', 'content': chunk})}\n\n"
+    try:
+        for chunk in provider.stream_final_answer(messages):
+            accumulated_chunks.append(chunk)
+            stream_tokens_count += len(chunk.split())
+            yield f"data: {json.dumps({'type': 'token', 'content': chunk})}\n\n"
+    except Exception as ex:
+        logger.warning("Streaming error from provider: %s. Falling back to local deterministic stream.", ex)
+        for chunk in provider.local.stream_final_answer(messages):
+            accumulated_chunks.append(chunk)
+            stream_tokens_count += len(chunk.split())
+            yield f"data: {json.dumps({'type': 'token', 'content': chunk})}\n\n"
 
     total_completion_tokens += stream_tokens_count
 

@@ -402,7 +402,7 @@ export const App: React.FC = () => {
                     <FileText className="w-8 h-8" />
                   </div>
                   <h3 className="text-lg font-bold text-bento-text dark:text-bento-darkText">
-                    Download Enterprise PDF Dossier & Playbook
+                    Download Enterprise PDF Report & Strategic Playbook
                   </h3>
                   <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-2 max-w-md mx-auto">
                     Generates a publication-grade 3-page PDF report compiled server-side via ReportLab, containing audited macro scorecards, commercial DOs and DON'Ts matrix, category splits, and regional carrier logistics.

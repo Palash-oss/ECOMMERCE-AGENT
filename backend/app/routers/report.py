@@ -27,7 +27,7 @@ def generate_pdf_report_endpoint(
         end_date=payload.end_date,
         user_role=user.get("role", "viewer")
     )
-    filename = f"NexusCommerce_Executive_Dossier_{int(time.time())}.pdf"
+    filename = f"NexusCommerce_Executive_Performance_Report_{time.strftime('%Y%m%d_%H%M%S')}.pdf"
     return StreamingResponse(
         pdf_buffer,
         media_type="application/pdf",

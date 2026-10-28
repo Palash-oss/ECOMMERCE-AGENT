@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     LLM_PROVIDER: str = "auto"  # auto | gemini | groq
     GEMINI_API_KEY: str = ""
     GROQ_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     GROQ_MODEL: str = "qwen/qwen3.8-27b"
 
     # Server Configuration

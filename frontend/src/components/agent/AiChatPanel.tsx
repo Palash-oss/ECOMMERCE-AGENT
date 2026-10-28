@@ -27,7 +27,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({ isOpen, onClose, initi
     {
       id: 'welcome',
       sender: 'agent',
-      text: "### 🎯 Welcome to NexusCommerce AI Agent\nI'm your intelligent analytics assistant — powered by **Groq** with verified parameterized tools and real-time data access.\n\nAsk me about **6-month revenue trends**, **top categories**, **geographic sales distribution**, or **customer retention insights**.",
+      text: "### 🎯 Welcome to NexusCommerce AI Agent\nI'm your intelligent analytics assistant — powered by a **resilient multi-tier AI orchestrator (Groq + Gemini)** with verified parameterized tools, live database queries, and zero synthetic metrics.\n\nAsk me about **6-month revenue trends**, **top product categories**, **geographic consumer demand across Brazil**, or **operational delivery performance**.",
     }
   ]);
   const [input, setInput] = useState('');
@@ -41,8 +41,10 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({ isOpen, onClose, initi
   const suggestions = [
     "What are our top 3 revenue categories and unit prices?",
     "Analyze customer review satisfaction and 1-star ratings",
-    "Which Brazilian states account for the majority of customer orders?",
-    "Explain our 3.00% repeat buyer rate and customer retention"
+    "Which Brazilian states account for top customer demand?",
+    "What is our unique customer repeat purchase rate and retention baseline?",
+    "Identify on-time delivery performance and carrier turnaround bottlenecks",
+    "Give me an executive summary of overall e-commerce performance"
   ];
 
   useEffect(() => {

@@ -254,7 +254,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-neutral-900/90 hover:bg-neutral-800 text-xs font-semibold border border-neutral-700/60 text-neutral-200 transition-all duration-200 hover:border-brand-orange/50 shadow-sm"
           >
             <FileText className="w-3.5 h-3.5 text-brand-orange" />
-            <span>Export Dossier</span>
+            <span>Export PDF Report</span>
           </button>
 
           <button
@@ -310,7 +310,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 font-semibold text-sm border border-neutral-700/60 hover:border-brand-orange/40 flex items-center justify-center gap-2 transition-all duration-200 backdrop-blur-md shadow-lg"
           >
             <FileText className="w-4 h-4 text-brand-orange" />
-            <span>Generate PDF Dossier</span>
+            <span>Generate PDF Report</span>
           </button>
         </div>
 
@@ -515,7 +515,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {
               icon: FileText,
               title: 'Vector PDF Report Compilation',
-              desc: 'Server-side ReportLab document generation creates two-page executive dossiers complete with audited scorecards and strategic steps.',
+              desc: 'Server-side ReportLab document generation creates three-page executive performance reports complete with audited scorecards and strategic steps.',
               color: 'text-blue-400',
               bg: 'bg-blue-500/10',
               border: 'border-blue-500/20',
