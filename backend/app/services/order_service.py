@@ -4,10 +4,11 @@ from backend.app.security.pii_masker import mask_identifier
 
 def list_orders(
     status: Optional[str] = None,
+    search: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     page: int = 1,
-    page_size: int = 10
+    page_size: int = 15
 ) -> Dict[str, Any]:
     """
     Paginated orders ledger with customer location, item count, and total amount.
@@ -19,9 +20,14 @@ def list_orders(
     conditions = ["1=1"]
     params: List[Any] = []
 
-    if status and status.lower() != "all":
+    if status and status.lower() not in ["all", "any"]:
         conditions.append("o.order_status = %s")
         params.append(status.lower())
+
+    if search and search.strip():
+        s_clean = f"%{search.strip().lower()}%"
+        conditions.append("(LOWER(o.order_id) LIKE %s OR LOWER(COALESCE(c.city, '')) LIKE %s OR LOWER(COALESCE(c.state, '')) LIKE %s)")
+        params.extend([s_clean, s_clean, s_clean])
 
     if start_date:
         conditions.append("o.purchased_at >= %s")
@@ -77,10 +83,17 @@ def list_orders(
             "total_value": float(r["total_value"] or 0.0)
         })
 
+    # Fetch global status counts breakdown for tabs
+    status_sql = "SELECT order_status, COUNT(*) as cnt FROM olist.orders GROUP BY order_status;"
+    status_rows = execute_query(status_sql)
+    status_counts = {r["order_status"]: int(r["cnt"]) for r in status_rows}
+    status_counts["all"] = sum(status_counts.values())
+
     return {
         "items": orders,
         "page": page,
         "page_size": page_size,
         "total_items": total_count,
-        "total_pages": (total_count + page_size - 1) // page_size
+        "total_pages": (total_count + page_size - 1) // page_size,
+        "status_counts": status_counts
     }

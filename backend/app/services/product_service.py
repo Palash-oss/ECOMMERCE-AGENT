@@ -424,6 +424,39 @@ def get_product_details(product_id: str) -> Dict[str, Any]:
         rank_row = execute_single(sql_rank, (p["category_id"], safe_id)) or {}
         category_rank = int(rank_row.get("cat_rank", 1))
 
+    # 6. Recent verified customer reviews with comments
+    sql_recent_revs = """
+        WITH dedup_item_reviews AS (
+            SELECT DISTINCT ON (ord_rev.order_id)
+                r.score,
+                COALESCE(r.comment_title, '') AS title,
+                COALESCE(r.comment_message, '') AS comment,
+                TO_CHAR(r.created_date, 'YYYY-MM-DD') AS date
+            FROM olist.order_items oi
+            JOIN olist.order_reviews ord_rev ON oi.order_id = ord_rev.order_id
+            JOIN olist.reviews r ON ord_rev.review_id = r.review_id
+            WHERE oi.product_id = %s
+              AND r.comment_message IS NOT NULL AND TRIM(r.comment_message) != ''
+            ORDER BY ord_rev.order_id, r.created_date DESC
+        )
+        SELECT score, title, comment, date
+        FROM dedup_item_reviews
+        ORDER BY date DESC
+        LIMIT 5;
+    """
+    raw_recent_reviews = execute_query(sql_recent_revs, (safe_id,))
+    recent_reviews = [
+        {
+            "score": int(r["score"]),
+            "title": str(r["title"]).strip(),
+            "comment": str(r["comment"]).strip(),
+            "date": str(r["date"])
+        }
+        for r in raw_recent_reviews
+    ]
+
+    velocity_tier = "High Demand" if units > 40 else ("Moderate Demand" if units > 15 else "Niche Demand")
+
     return {
         "product_id": p["product_id"],
         "short_code": short_code,
@@ -437,9 +470,11 @@ def get_product_details(product_id: str) -> Dict[str, Any]:
         "avg_freight": float(p["avg_freight"] or 0),
         "freight_share_pct": freight_share,
         "category_rank": category_rank,
+        "velocity_tier": velocity_tier,
         "avg_review_score": avg_score,
         "review_count": total_reviews,
         "review_distribution": rev_dist,
+        "recent_reviews": recent_reviews,
         "photos_qty": int(p["photos_qty"] or 1),
         "weight_g": int(p["weight_g"] or 0),
         "dimensions": f"{p['length_cm']}×{p['width_cm']}×{p['height_cm']} cm",

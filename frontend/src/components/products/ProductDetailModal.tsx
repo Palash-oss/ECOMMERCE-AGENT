@@ -114,25 +114,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="bg-neutral-50 dark:bg-neutral-900/60 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <span className="text-[10px] text-bento-muted dark:text-bento-darkMuted font-bold uppercase tracking-wider block">Total Revenue</span>
                 <span className="text-lg font-bold font-mono text-brand-orange dark:text-brand-neon mt-0.5 block">
-                  R$ {detail.total_revenue.toLocaleString()}
+                  R$ {Number(detail.total_revenue || 0).toLocaleString()}
                 </span>
               </div>
               <div className="bg-neutral-50 dark:bg-neutral-900/60 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <span className="text-[10px] text-bento-muted dark:text-bento-darkMuted font-bold uppercase tracking-wider block">Units Fulfilled</span>
                 <span className="text-lg font-bold font-mono text-bento-text dark:text-bento-darkText mt-0.5 block">
-                  {detail.units_sold.toLocaleString()}
+                  {Number(detail.units_sold || 0).toLocaleString()}
                 </span>
               </div>
               <div className="bg-neutral-50 dark:bg-neutral-900/60 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <span className="text-[10px] text-bento-muted dark:text-bento-darkMuted font-bold uppercase tracking-wider block">Average Price</span>
                 <span className="text-lg font-bold font-mono text-bento-text dark:text-bento-darkText mt-0.5 block">
-                  R$ {detail.avg_price.toFixed(2)}
+                  R$ {Number(detail.avg_price || 0).toFixed(2)}
                 </span>
               </div>
               <div className="bg-neutral-50 dark:bg-neutral-900/60 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                 <span className="text-[10px] text-bento-muted dark:text-bento-darkMuted font-bold uppercase tracking-wider block">Category Rank</span>
                 <span className="text-lg font-bold font-mono text-amber-500 mt-0.5 block">
-                  #{detail.category_rank}
+                  #{detail.category_rank || 1}
                 </span>
               </div>
             </div>
@@ -144,7 +144,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </h4>
               <div className="w-full h-44 bg-neutral-50 dark:bg-neutral-900/40 rounded-2xl p-3 border border-neutral-100 dark:border-neutral-800">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={detail.monthly_trend}>
+                  <BarChart data={detail.monthly_trend || []}>
                     <XAxis dataKey="month_label" tick={{ fontSize: 10, fill: '#71717A' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 10, fill: '#71717A' }} axisLine={false} tickLine={false} />
                     <Tooltip 
@@ -165,7 +165,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <h4 className="text-xs font-bold text-bento-text dark:text-bento-darkText mb-2.5 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-brand-orange" /> Frequently Bought Together
                 </h4>
-                {detail.frequently_bought_together.length === 0 ? (
+                {(!detail.frequently_bought_together || detail.frequently_bought_together.length === 0) ? (
                   <p className="text-xs text-bento-muted">No co-occurring items in multi-item baskets.</p>
                 ) : (
                   <div className="space-y-2">
@@ -188,14 +188,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <h4 className="text-xs font-bold text-bento-text dark:text-bento-darkText mb-2.5 flex items-center gap-1.5">
                   <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" /> Verified Customer Reviews
                 </h4>
-                {detail.recent_reviews.length === 0 ? (
+                {(!detail.recent_reviews || detail.recent_reviews.length === 0) ? (
                   <p className="text-xs text-bento-muted">No textual review comments logged for this SKU.</p>
                 ) : (
                   <div className="space-y-2.5">
                     {detail.recent_reviews.slice(0, 3).map((rev, i) => (
                       <div key={i} className="text-xs border-b border-neutral-200/50 dark:border-neutral-800/60 pb-2 last:border-none">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[11px] text-amber-500">{'★'.repeat(rev.score)}</span>
+                          <span className="font-bold text-[11px] text-amber-500">{'★'.repeat(Math.max(1, Math.min(5, rev.score || 5)))}</span>
                           <span className="text-[10px] text-bento-muted font-mono">{rev.date}</span>
                         </div>
                         <p className="text-neutral-600 dark:text-neutral-300 text-[11px] mt-0.5 line-clamp-2">

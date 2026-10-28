@@ -17,6 +17,8 @@ import { ProductList } from './components/products/ProductList';
 import { ProductDetailModal } from './components/products/ProductDetailModal';
 import { ProductCompareModal } from './components/products/ProductCompareModal';
 import { ReportDownloadModal } from './components/report/ReportDownloadModal';
+import { OrderLedgerView } from './components/orders/OrderLedgerView';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { api } from './api/client';
 import { 
   OverviewKpis, TimeseriesPoint, CategoryBreakdown, GeoRegion, 
@@ -379,20 +381,7 @@ export const App: React.FC = () => {
 
               {/* TAB 3: ORDERS LEDGER */}
               {activeTab === 'orders' && (
-                <div className="animate-in fade-in duration-200">
-                  <div className="mb-4">
-                    <h2 className="text-xl font-bold tracking-tight text-bento-text dark:text-bento-darkText">
-                      Enterprise Order Ledger
-                    </h2>
-                    <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">
-                      99,441 verified order fulfillment states across Brazil
-                    </p>
-                  </div>
-                  <RecentOrdersTable
-                    orders={recentOrders}
-                    onViewAll={() => {}}
-                  />
-                </div>
+                <OrderLedgerView />
               )}
 
               {/* TAB 4: PDF REPORT OVERVIEW */}
@@ -448,20 +437,30 @@ export const App: React.FC = () => {
 
       {/* Product Detail Modal */}
       {selectedProductId && (
-        <ProductDetailModal
-          productId={selectedProductId}
-          onClose={() => setSelectedProductId(null)}
-          onAskAi={handleOpenAiWithPrompt}
-        />
+        <ErrorBoundary 
+          fallbackMessage="Product Telemetry Error" 
+          onReset={() => setSelectedProductId(null)}
+        >
+          <ProductDetailModal
+            productId={selectedProductId}
+            onClose={() => setSelectedProductId(null)}
+            onAskAi={handleOpenAiWithPrompt}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Product Compare Modal */}
       {compareProductIds.length >= 2 && (
-        <ProductCompareModal
-          productIds={compareProductIds}
-          onClose={() => setCompareProductIds([])}
-          onSelectProduct={(pid) => setSelectedProductId(pid)}
-        />
+        <ErrorBoundary 
+          fallbackMessage="Comparison View Error" 
+          onReset={() => setCompareProductIds([])}
+        >
+          <ProductCompareModal
+            productIds={compareProductIds}
+            onClose={() => setCompareProductIds([])}
+            onSelectProduct={(pid) => setSelectedProductId(pid)}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Server-Side PDF Report Modal */}

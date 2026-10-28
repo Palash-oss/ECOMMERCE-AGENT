@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Rate Limiting & Spend Cap
-    RATE_LIMIT_PER_MINUTE: int = 20
+    RATE_LIMIT_PER_MINUTE: int = 120
     DAILY_TOKEN_BUDGET: int = 250000
     MONTHLY_SPEND_CAP_USD: float = 50.00
 

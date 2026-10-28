@@ -124,9 +124,23 @@ export const api = {
   },
 
   // Orders
-  async getOrders(params: { status?: string; start_date?: string; end_date?: string; page?: number; page_size?: number }): Promise<{ items: OrderItem[]; total_items: number; page: number; total_pages: number }> {
+  async getOrders(params: { 
+    status?: string; 
+    search?: string; 
+    start_date?: string; 
+    end_date?: string; 
+    page?: number; 
+    page_size?: number 
+  }): Promise<{ 
+    items: OrderItem[]; 
+    total_items: number; 
+    page: number; 
+    total_pages: number; 
+    status_counts?: Record<string, number> 
+  }> {
     const q = new URLSearchParams();
     if (params.status && params.status !== 'all') q.append('status', params.status);
+    if (params.search) q.append('search', params.search);
     if (params.start_date) q.append('start_date', params.start_date);
     if (params.end_date) q.append('end_date', params.end_date);
     if (params.page) q.append('page', params.page.toString());
