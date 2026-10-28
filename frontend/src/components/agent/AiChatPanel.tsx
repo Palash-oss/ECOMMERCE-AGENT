@@ -27,7 +27,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({ isOpen, onClose, initi
     {
       id: 'welcome',
       sender: 'agent',
-      text: "### 🎯 Welcome to NexusCommerce AI Agent\nI query the live **CockroachDB DefaultDB** cluster using verified parameterized analytics tools with zero arbitrary SQL injection risk.\n\nAsk me about **6-month revenue trends**, **category performance**, **geographic delivery overhead**, or **customer satisfaction**.",
+      text: "### 🎯 Welcome to NexusCommerce AI Agent\nI'm your intelligent analytics assistant — powered by **Groq** with verified parameterized tools and real-time data access.\n\nAsk me about **6-month revenue trends**, **top categories**, **geographic sales distribution**, or **customer retention insights**.",
     }
   ]);
   const [input, setInput] = useState('');
@@ -246,7 +246,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({ isOpen, onClose, initi
                         className="inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-orange-500/10 dark:bg-orange-500/15 text-brand-orange dark:text-brand-neon hover:bg-orange-500/20 transition-bento border border-orange-500/20"
                       >
                         <Terminal className="w-3 h-3" />
-                        <span>⚡ Used {uniqueTools.length} CockroachDB verified tool{uniqueTools.length === 1 ? '' : 's'}</span>
+                        <span>⚡ Used {uniqueTools.length} analytics tool{uniqueTools.length === 1 ? '' : 's'}</span>
                         {isToolExpanded ? <ChevronUp className="w-3 h-3 ml-1" /> : <ChevronDown className="w-3 h-3 ml-1" />}
                       </button>
 

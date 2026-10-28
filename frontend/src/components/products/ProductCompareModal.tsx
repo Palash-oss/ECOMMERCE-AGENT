@@ -61,7 +61,7 @@ export const ProductCompareModal: React.FC<ProductCompareModalProps> = ({
         {loading ? (
           <div className="p-16 text-center text-xs text-bento-muted flex flex-col items-center gap-2">
             <Loader2 className="w-6 h-6 animate-spin text-brand-indigo" />
-            <span>Calculating comparative metrics from CockroachDB...</span>
+            <span>Calculating comparative metrics...</span>
           </div>
         ) : (
           <div className="p-6 overflow-x-auto">

@@ -59,7 +59,7 @@ export const CustomerHabitsChart: React.FC<CustomerHabitsChartProps> = ({ data }
       </div>
 
       <div className="w-full h-72 flex-1">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" debounce={50}>
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.06} />
             <XAxis 

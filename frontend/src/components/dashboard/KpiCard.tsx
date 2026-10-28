@@ -88,7 +88,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, iconType }) => {
         <p className="text-[11px] text-slate-400 mt-2 truncate">
           {hasDelta && data.previous_value !== null
             ? `vs prior 6M (R$ ${data.previous_value.toLocaleString()})`
-            : "Anchored to verified CockroachDB order items"}
+            : "Anchored to verified audit window data"}
         </p>
       </div>
     );
@@ -131,7 +131,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, iconType }) => {
           ? data.note
           : hasDelta && data.previous_value !== null
           ? `vs prior 6M (${data.previous_value.toLocaleString()})`
-          : "Verified CockroachDB telemetry"}
+          : "Verified live analytics"}
       </p>
     </div>
   );

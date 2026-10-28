@@ -43,7 +43,7 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({ data }) 
       <div className="flex flex-col sm:flex-row items-center gap-4 flex-1">
         {/* Donut Chart */}
         <div className="w-44 h-44 relative flex-shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" debounce={50}>
             <PieChart>
               <Tooltip content={<CustomTooltip />} />
               <Pie

@@ -104,7 +104,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         {loading || !detail ? (
           <div className="p-12 text-center text-xs text-bento-muted flex flex-col items-center gap-2">
             <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
-            <span>Querying live CockroachDB order items and review logs...</span>
+            <span>Loading product analytics and review data...</span>
           </div>
         ) : (
           <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">

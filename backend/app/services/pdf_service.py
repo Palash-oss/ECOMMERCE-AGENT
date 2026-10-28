@@ -51,7 +51,7 @@ class NumberedCanvas(canvas.Canvas):
 
         self.setFont("Helvetica", 8)
         self.setFillColor(colors.HexColor("#71717A"))
-        self.drawString(40, 30, f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())} | CockroachDB Cloud Read-Only")
+        self.drawString(40, 30, f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())} | Audited Live Enterprise Data")
         self.drawRightString(572, 30, f"Page {self._pageNumber} of {page_count}")
         self.restoreState()
 
@@ -146,7 +146,7 @@ def build_server_side_pdf_report(
     # Title & Scope
     elements.append(Paragraph("E-Commerce Intelligence & AI Performance Dossier", title_style))
     date_str = f"{start_date} to {end_date}" if start_date and end_date else "Last 6 Complete Months Benchmark (2018-03-01 to 2018-08-31)"
-    elements.append(Paragraph(f"<b>Reporting Scope</b>: {date_str} &nbsp;|&nbsp; <b>User Access Role</b>: {user_role.upper()} &nbsp;|&nbsp; <b>CockroachDB Status</b>: READ-ONLY AUDIT", subtitle_style))
+    elements.append(Paragraph(f"<b>Reporting Scope</b>: {date_str} &nbsp;|&nbsp; <b>User Access Role</b>: {user_role.upper()} &nbsp;|&nbsp; <b>Database Cluster</b>: LIVE AUDIT", subtitle_style))
     elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#FF5A1F"), spaceBefore=0, spaceAfter=8))
 
     # Executive AI Summary

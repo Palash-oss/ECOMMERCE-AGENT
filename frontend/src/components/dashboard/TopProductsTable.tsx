@@ -30,7 +30,7 @@ export const TopProductsTable: React.FC<TopProductsTableProps> = ({
             Top Performing Catalog Items
           </h3>
           <p className="text-xs text-bento-muted dark:text-bento-darkMuted mt-0.5">
-            Ranked by gross merchandise volume (CockroachDB delivered items)
+            Ranked by gross merchandise volume (delivered order items)
           </p>
         </div>
         <button

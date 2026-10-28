@@ -90,7 +90,7 @@ export const App: React.FC = () => {
           api.getCategories(6),
           api.getGeo(5),
           api.getProducts({ sort_by: 'revenue', page: 1, page_size: 5 }),
-          api.getOrders({ page: 1, page_size: 5 }),
+          api.getOrders({ status: 'delivered', page: 1, page_size: 6 }),
           api.getAiSummary(),
           api.getAiUsage()
         ]);
@@ -176,7 +176,7 @@ export const App: React.FC = () => {
           </button>
           <div className="text-[11px] font-mono text-bento-muted dark:text-bento-darkMuted flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Cluster: AWS ap-south-1 · CockroachDB DefaultDB</span>
+            <span>Live · AWS ap-south-1</span>
           </div>
         </div>
 
@@ -197,7 +197,7 @@ export const App: React.FC = () => {
           {loading && !kpis ? (
             <div className="h-[60vh] flex flex-col items-center justify-center gap-3 text-bento-muted text-xs">
               <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
-              <span>Connecting to CockroachDB and computing real-time metrics...</span>
+              <span>Loading analytics data...</span>
             </div>
           ) : (
             <>

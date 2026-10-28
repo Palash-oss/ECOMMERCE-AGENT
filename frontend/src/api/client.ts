@@ -185,24 +185,36 @@ export const api = {
       throw new Error(`Unexpected non-PDF response from server: ${errText.slice(0, 100)}`);
     }
 
-    // Extract filename from Content-Disposition if provided
-    let filename = `NexusCommerce_Report_${Date.now()}.pdf`;
+    // Extract filename from Content-Disposition or fallback to timestamped title
+    let filename = `NexusCommerce_Executive_Dossier_${new Date().toISOString().split('T')[0]}.pdf`;
     const disposition = res.headers.get('content-disposition');
     if (disposition) {
-      const match = disposition.match(/filename=["']?([^"';]+)["']?/);
+      const match = disposition.match(/filename=["']?([^"';\n]+)["']?/i);
       if (match && match[1]) {
-        filename = match[1].trim();
+        filename = match[1].trim().replace(/['"]/g, '');
       }
     }
+    if (!filename.toLowerCase().endsWith('.pdf')) {
+      filename += '.pdf';
+    }
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
+    const rawBlob = await res.blob();
+    const pdfBlob = new Blob([rawBlob], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(pdfBlob);
+    
     const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = url;
-    a.download = filename;
+    a.setAttribute('download', filename);
     document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+
+    // Delay revocation so Chromium download manager completely initiates the download stream
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      if (document.body.contains(a)) {
+        document.body.removeChild(a);
+      }
+    }, 10000);
   }
 };

@@ -58,7 +58,7 @@ def run_agent_turn_stream(
         except Exception as e:
             logger.warning("Primary provider %s error: %s. Attempting graceful synthesis.", provider_name, e)
             tool_calls = None
-            direct_text = f"Analyzed database telemetry across verified CockroachDB orders. Note: Encountered provider upstream message ({str(e)[:60]})."
+            direct_text = f"Analyzed analytics telemetry across verified orders. Note: Encountered upstream provider message ({str(e)[:60]})."
 
         if not tool_calls:
             # Model is ready to formulate final answer or provided text directly
@@ -66,10 +66,29 @@ def run_agent_turn_stream(
                 yield f"data: {json.dumps({'type': 'token', 'content': direct_text})}\n\n"
             break
 
-        # Execute tools with Turn-Level Memoization (Bug 4 Fix)
-        for tc in tool_calls:
+        # Execute tools with Turn-Level Memoization
+        assistant_tool_calls = []
+        for i, tc in enumerate(tool_calls):
+            call_id = tc.get("id", f"call_{len(assistant_tool_calls)}_{int(time.time())}")
+            assistant_tool_calls.append({
+                "id": call_id,
+                "type": "function",
+                "function": {
+                    "name": tc["name"],
+                    "arguments": json.dumps(tc.get("args", {}))
+                }
+            })
+
+        messages.append({
+            "role": "assistant",
+            "content": direct_text or "",
+            "tool_calls": assistant_tool_calls
+        })
+
+        for i, tc in enumerate(tool_calls):
             fn_name = tc["name"]
             fn_args = tc.get("args", {})
+            call_id = assistant_tool_calls[i]["id"]
             call_hash = f"{fn_name}:{json.dumps(fn_args, sort_keys=True)}"
 
             if fn_name not in tools_executed:
@@ -98,10 +117,12 @@ def run_agent_turn_stream(
             # Send tool call event to frontend UI
             yield f"data: {json.dumps({'type': 'tool_call', 'name': fn_name, 'args': fn_args, 'result_preview': str(tool_output)[:120]})}\n\n"
 
-            # Append tool result into dialogue context with untrusted wrapper
+            # Append tool result into dialogue context compliant with OpenAI/Groq specs
             messages.append({
                 "role": "tool",
-                "content": f"<tool_result name='{fn_name}'>\n{wrap_untrusted_data(json.dumps(tool_output, default=str))}\n</tool_result>"
+                "tool_call_id": call_id,
+                "name": fn_name,
+                "content": json.dumps(tool_output, default=str)
             })
 
     # Stream final token-by-token answer

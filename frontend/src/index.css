@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,13 +17,13 @@
 
 .dark {
   --bg-primary: #0A0A0B;
-  --bg-surface: #121214;
-  --border-subtle: #26262B;
-  --text-primary: #FAFAFA;
-  --text-muted: #A1A1AA;
+  --bg-surface: #111113;
+  --border-subtle: #222228;
+  --text-primary: #F5F5F7;
+  --text-muted: #8E8E99;
   --accent-orange: #FF6A2B;
   --accent-hover: #FF7E47;
-  --accent-soft: rgba(255, 106, 43, 0.14);
+  --accent-soft: rgba(255, 106, 43, 0.12);
 }
 
 @layer base {
@@ -30,34 +32,22 @@
     background-color: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-}
 
-/* Lenis smooth scrolling rules */
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
+  /* Dark mode bento card consistency */
+  .dark .bg-bento-card { background-color: #111113; }
+  .dark .bg-bento-darkCard { background-color: #111113; }
+  .dark .border-bento-darkBorder { border-color: #222228; }
+  .dark .text-bento-darkText { color: #F5F5F7; }
+  .dark .text-bento-darkMuted { color: #8E8E99; }
 }
 
 /* Custom soft scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -67,7 +57,7 @@ html.lenis, html.lenis body {
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #333338;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #a1a1aa;
@@ -78,17 +68,96 @@ html.lenis, html.lenis body {
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Pulse Glow Animation */
-@keyframes neon-pulse {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(255, 106, 43, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(255, 106, 43, 0.6);
-  }
-}
+/* === ANIMATIONS === */
 
+/* Neon pulse glow */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 106, 43, 0.3); }
+  50%       { box-shadow: 0 0 30px rgba(255, 106, 43, 0.65); }
+}
 .neon-border-glow {
   animation: neon-pulse 3s infinite;
 }
 
+/* Fade in up */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Shimmer skeleton loader */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #1a1a1e 25%, #222228 50%, #1a1a1e 75%);
+  background-size: 200% 100%;
+}
+
+/* Bento card entrance */
+@keyframes bento-in {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-bento-in {
+  animation: bento-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Tab content fade */
+@keyframes tab-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-tab-in {
+  animation: tab-fade-in 0.3s ease forwards;
+}
+
+/* Spinner */
+@keyframes spin-smooth {
+  to { transform: rotate(360deg); }
+}
+
+/* Floating orb */
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-20px) scale(1.05); }
+}
+.animate-float-orb {
+  animation: float-orb 6s ease-in-out infinite;
+}
+
+/* Data bar enter */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.animate-bar-grow {
+  animation: bar-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: left;
+}
+
+/* Fluid, hardware-accelerated scrolling */
+main {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  will-change: scroll-position;
+}
+
+/* Prose styles for AI chat markdown */
+.prose-chat h3 { color: var(--accent-orange); font-weight: 700; margin-bottom: 4px; }
+.prose-chat p  { margin-bottom: 8px; line-height: 1.65; }
+.prose-chat ul { padding-left: 12px; }
+.prose-chat li { list-style: none; position: relative; padding-left: 12px; }
+.prose-chat li::before { content: "•"; position: absolute; left: 0; color: var(--accent-orange); font-weight: 700; }
+.prose-chat code { background: rgba(255,106,43,0.1); color: var(--accent-orange); padding: 2px 6px; border-radius: 4px; font-size: 11px; }

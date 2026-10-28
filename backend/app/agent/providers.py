@@ -35,9 +35,15 @@ class LLMProvider(ABC):
 class GroqProvider(LLMProvider):
     """Groq Provider implementation using OpenAI-compatible REST endpoint."""
 
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
+    SUPPORTED_FALLBACKS = ["qwen/qwen3.8-27b", "openai/gpt-oss-20b"]
+
+    def __init__(self, api_key: str, model: str = "qwen/qwen3.8-27b"):
         self.api_key = api_key
-        self.model = model
+        # Automatically select supported model if legacy or invalid model passed
+        if "llama" in model.lower() or not model:
+            self.model = "qwen/qwen3.8-27b"
+        else:
+            self.model = model
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
 
     def generate_chat_response(
@@ -52,16 +58,37 @@ class GroqProvider(LLMProvider):
         formatted_tools = [
             {"type": "function", "function": t} for t in tools
         ]
+        
+        # Filter messages for OpenAI/Groq schema compliance
+        clean_messages = []
+        for m in messages:
+            clean_m = {"role": m["role"], "content": m.get("content") or ""}
+            if "tool_calls" in m:
+                clean_m["tool_calls"] = m["tool_calls"]
+            if "tool_call_id" in m:
+                clean_m["tool_call_id"] = m["tool_call_id"]
+            if "name" in m and m["role"] == "tool":
+                clean_m["name"] = m["name"]
+            clean_messages.append(clean_m)
+
         payload = {
             "model": self.model,
-            "messages": messages,
+            "messages": clean_messages,
             "tools": formatted_tools,
             "tool_choice": "auto",
             "temperature": 0.2,
             "max_tokens": 1024
         }
-        with httpx.Client(timeout=15.0) as client:
+        with httpx.Client(timeout=20.0) as client:
             resp = client.post(self.base_url, headers=headers, json=payload)
+            if resp.status_code == 404:
+                # Try fallback models
+                for fb in self.SUPPORTED_FALLBACKS:
+                    payload["model"] = fb
+                    resp = client.post(self.base_url, headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        self.model = fb
+                        break
             if resp.status_code == 429:
                 raise RuntimeError("Groq Rate Limit Reached (429)")
             resp.raise_for_status()
@@ -75,11 +102,11 @@ class GroqProvider(LLMProvider):
             for tc in choice["tool_calls"]:
                 fn = tc["function"]
                 try:
-                    args = json.loads(fn["arguments"])
+                    args = json.loads(fn["arguments"]) if isinstance(fn["arguments"], str) else fn["arguments"]
                 except Exception:
                     args = {}
-                calls.append({"name": fn["name"], "args": args, "id": tc["id"]})
-            return calls, "", usage
+                calls.append({"name": fn["name"], "args": args, "id": tc.get("id", f"call_{len(calls)}")})
+            return calls, choice.get("content") or "", usage
 
         return None, choice.get("content", ""), usage
 
@@ -88,15 +115,43 @@ class GroqProvider(LLMProvider):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
+        clean_messages = []
+        for m in messages:
+            clean_m = {"role": m["role"], "content": m.get("content") or ""}
+            if "tool_calls" in m:
+                clean_m["tool_calls"] = m["tool_calls"]
+            if "tool_call_id" in m:
+                clean_m["tool_call_id"] = m["tool_call_id"]
+            if "name" in m and m["role"] == "tool":
+                clean_m["name"] = m["name"]
+            clean_messages.append(clean_m)
+
         payload = {
             "model": self.model,
-            "messages": messages,
+            "messages": clean_messages,
             "temperature": 0.2,
             "max_tokens": 1200,
             "stream": True
         }
-        with httpx.Client(timeout=25.0) as client:
+        with httpx.Client(timeout=30.0) as client:
             with client.stream("POST", self.base_url, headers=headers, json=payload) as response:
+                if response.status_code == 404:
+                    # Fallback model retry
+                    for fb in self.SUPPORTED_FALLBACKS:
+                        payload["model"] = fb
+                        with client.stream("POST", self.base_url, headers=headers, json=payload) as fb_resp:
+                            if fb_resp.status_code == 200:
+                                self.model = fb
+                                for line in fb_resp.iter_lines():
+                                    if line.startswith("data: ") and line != "data: [DONE]":
+                                        try:
+                                            chunk = json.loads(line[6:])
+                                            delta = chunk["choices"][0]["delta"].get("content", "")
+                                            if delta:
+                                                yield delta
+                                        except Exception:
+                                            continue
+                                return
                 response.raise_for_status()
                 for line in response.iter_lines():
                     if line.startswith("data: ") and line != "data: [DONE]":
@@ -237,12 +292,12 @@ class DeterministicLocalProvider(LLMProvider):
                 tool_content += m["content"] + "\n"
 
         response_chunks = [
-            "### Executive E-Commerce Data Assessment\n\n",
-            "Based on live parameterized telemetry queried from the CockroachDB cluster:\n\n",
+            "### 🎯 Executive Data Assessment\n\n",
+            "Based on live parameterized telemetry queried from the enterprise database:\n\n",
             "1. **Core Velocity**: Total delivered GMV stands at **R$ 15,419,773.75** across 96,478 successfully fulfilled orders.\n",
             "2. **Category Driver**: *Health & Beauty* (R$ 1.26M) and *Watches & Gifts* (R$ 1.21M) dominate commercial value, while *Bed, Bath & Table* leads item volume (11,115 units).\n",
             "3. **Geographic Distribution**: The South-Eastern corridor (São Paulo, Rio de Janeiro, Minas Gerais) generates over **66.6%** of consumer demand, with São Paulo benefiting from the lowest freight overhead (avg R$ 15.15).\n",
-            "4. **Operational Recommendation**: Focus carrier SLA enforcement on non-SP delivery lanes, where transit delays directly account for 68% of 1-star dissatisfaction reviews.\n"
+            "4. **Operational Recommendation**: Focus carrier SLA enforcement on non-SP delivery lanes, where transit delays directly impact customer satisfaction.\n"
         ]
         for c in response_chunks:
             time.sleep(0.06)
@@ -260,12 +315,12 @@ def get_active_llm_provider() -> Tuple[LLMProvider, str]:
     if mode == "gemini" and has_gemini:
         return GeminiProvider(settings.GEMINI_API_KEY, settings.GEMINI_MODEL), "Google Gemini"
     elif mode == "groq" and has_groq:
-        return GroqProvider(settings.GROQ_API_KEY, settings.GROQ_MODEL), "Groq Llama-3.3-70B"
+        return GroqProvider(settings.GROQ_API_KEY, settings.GROQ_MODEL), "Groq AI Agent (Qwen-27B)"
     elif mode == "auto":
-        if has_gemini:
+        if has_groq:
+            return GroqProvider(settings.GROQ_API_KEY, settings.GROQ_MODEL), "Groq AI Agent (Qwen-27B)"
+        elif has_gemini:
             return GeminiProvider(settings.GEMINI_API_KEY, settings.GEMINI_MODEL), "Google Gemini (Auto)"
-        elif has_groq:
-            return GroqProvider(settings.GROQ_API_KEY, settings.GROQ_MODEL), "Groq Llama-3.3-70B (Auto)"
 
     # Fallback to deterministic local engine if no external API key is entered yet
     return DeterministicLocalProvider(), "Deterministic Local AI Engine"

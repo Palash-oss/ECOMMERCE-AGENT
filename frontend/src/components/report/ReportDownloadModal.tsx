@@ -44,7 +44,7 @@ export const ReportDownloadModal: React.FC<ReportDownloadModalProps> = ({ isOpen
   };
 
   const stepsList = [
-    { title: 'Querying CockroachDB Telemetry', desc: 'Fetching delivered orders & item values' },
+    { title: 'Querying Live Analytics Data', desc: 'Fetching delivered orders & item revenue values' },
     { title: 'Reconciling Canonical Metrics', desc: 'Validating category sums and repeat buyer rates' },
     { title: 'Compiling Vector PDF Dossier', desc: 'Rendering server-side ReportLab document' },
   ];
